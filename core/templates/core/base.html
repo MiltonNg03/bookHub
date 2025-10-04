@@ -7,13 +7,18 @@
 </head>
 <body>
     {% include 'core/includes/header.html' %}
+    {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'register' and request.resolver_match.url_name != 'home' %}
+        <div style="padding: 10px 20px;">
+            <button onclick="history.back()">← Retour</button>
+        </div>
+    {% endif %}
     {% include 'core/includes/messages.html' %}
-    <div id="logoutModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 5px; text-align: center;">
+    <div id="logoutModal" >
+        <div>
             <h3>Confirm Logout</h3>
             <p>Are you sure you want to logout?</p>
-            <button onclick="logout()" style="margin: 5px; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">Yes, Logout</button>
-            <button onclick="closeModal()" style="margin: 5px; padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">Cancel</button>
+            <button onclick="logout()" >Yes, Logout</button>
+            <button onclick="closeModal()">Cancel</button>
         </div>
     </div>
 

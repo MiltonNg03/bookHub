@@ -225,6 +225,24 @@ def live_search(request):
     return JsonResponse({'books': books_data})
 
 @login_required
+def my_orders(request):
+    # Récupérer les livres achetés (commandes)
+    purchased_books = OrderItem.objects.filter(order__user=request.user).select_related('book', 'order')
+    
+    # Récupérer les livres dans le panier
+    cart_books = []
+    try:
+        cart = Cart.objects.get(user=request.user)
+        cart_books = CartItem.objects.filter(cart=cart).select_related('book')
+    except Cart.DoesNotExist:
+        pass
+    
+    return render(request, 'core/my_orders.html', {
+        'purchased_books': purchased_books,
+        'cart_books': cart_books
+    })
+
+@login_required
 def checkout(request):
     try:
         cart = Cart.objects.get(user=request.user)

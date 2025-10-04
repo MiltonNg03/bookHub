@@ -1,0 +1,71 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Mes Commandes - BookHub{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Mes Commandes</h1>
+    
+    {% if purchased_books or cart_books %}
+        <div class="orders-section">
+            
+            {% if purchased_books %}
+                <div class="purchased-books">
+                    <h2>Livres Achetés</h2>
+                    <div class="books-grid">
+                        {% for item in purchased_books %}
+                            <div class="book-card">
+                                {% if item.book.cover_image %}
+                                    <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}" class="book-cover">
+                                {% else %}
+                                    <div class="no-image">Pas d'image</div>
+                                {% endif %}
+                                <div class="book-info">
+                                    <h3>{{ item.book.title }}</h3>
+                                    <p class="author">par {{ item.book.author.name }}</p>
+                                    <p class="price">{{ item.price }}€</p>
+                                    <p class="quantity">Quantité: {{ item.quantity }}</p>
+                                    <p class="status purchased">✓ Acheté</p>
+                                    <p class="order-date">Commandé le {{ item.order.created_at|date:"d/m/Y" }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if cart_books %}
+                <div class="cart-books">
+                    <h2>Livres dans le Panier</h2>
+                    <div class="books-grid">
+                        {% for item in cart_books %}
+                            <div class="book-card">
+                                {% if item.book.cover_image %}
+                                    <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}" class="book-cover">
+                                {% else %}
+                                    <div class="no-image">Pas d'image</div>
+                                {% endif %}
+                                <div class="book-info">
+                                    <h3>{{ item.book.title }}</h3>
+                                    <p class="author">par {{ item.book.author.name }}</p>
+                                    <p class="price">{{ item.book.price }}€</p>
+                                    <p class="quantity">Quantité: {{ item.quantity }}</p>
+                                    <p class="status in-cart">🛒 Encore dans le panier</p>
+                                    <p class="cart-date">Ajouté le {{ item.added_at|date:"d/m/Y" }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+        </div>
+    {% else %}
+        <div class="empty-orders">
+            <p>Vous n'avez encore acheté aucun livre et votre panier est vide.</p>
+            <a href="{% url 'book_list' %}" class="btn btn-primary">Découvrir nos livres</a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

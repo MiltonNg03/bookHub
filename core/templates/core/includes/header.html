@@ -18,8 +18,7 @@
                     <li>
                         <span>{{ user.username }}</span>
                         <ul>
-                            <li><a href="#">My Account</a></li>
-                            <li><a href="#">My Orders</a></li>
+                            <li><a href="{% url 'my_orders' %}">My Orders</a></li>
                             <li><a href="#" onclick="confirmLogout()">Logout</a></li>
                         </ul>
                     </li>

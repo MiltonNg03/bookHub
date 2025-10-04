@@ -1,0 +1,10 @@
+{% if messages %}
+<div>
+    {% for message in messages %}
+    <div>
+        {{ message }}
+        <button type="button">×</button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

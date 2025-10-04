@@ -1,0 +1,33 @@
+<nav>
+    <div>
+        <a href="{% url 'home' %}">BookHub</a>
+        
+        <div>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'book_list' %}">Books</a></li>
+            </ul>
+            
+            <ul>
+                {% if user.is_authenticated %}
+                    <li>
+                        <a href="{% url 'cart_detail' %}" id="cart-link">
+                            Cart <span id="cart-count" style="display: none;">0</span>
+                        </a>
+                    </li>
+                    <li>
+                        <span>{{ user.username }}</span>
+                        <ul>
+                            <li><a href="#">My Account</a></li>
+                            <li><a href="#">My Orders</a></li>
+                            <li><a href="#" onclick="confirmLogout()">Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    <li><a href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

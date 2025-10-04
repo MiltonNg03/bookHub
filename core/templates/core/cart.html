@@ -1,0 +1,197 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Mon Panier - BookHub{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div>
+    <h1>Mon Panier</h1>
+    
+    {% if cart_items %}
+    <div>
+        <div>
+            <div>
+                <div>
+                    <h5>Articles dans votre panier</h5>
+                </div>
+                <div>
+                    {% for item in cart_items %}
+                    <div id="cart-item-{{ item.id }}">
+                        <div>
+                            {% if item.book.cover_image %}
+                            <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}">
+                            {% else %}
+                            <div>[Book Image]</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h6>{{ item.book.title }}</h6>
+                            <p>par {{ item.book.author.name }}</p>
+                        </div>
+                        <div>
+                            <p>{{ item.book.price }} KES</p>
+                        </div>
+                        <div>
+                            <div>
+                                <button type="button" onclick="changeQuantity({{ item.id }}, -1)" 
+                                        {% if item.quantity <= 1 %}disabled{% endif %}>-</button>
+                                <input type="number" value="{{ item.quantity }}" 
+                                       min="1" max="{{ item.book.stock_quantity }}" id="quantity-{{ item.id }}"
+                                       onchange="updateQuantity({{ item.id }}, this.value)">
+                                <button type="button" onclick="changeQuantity({{ item.id }}, 1)">+</button>
+                            </div>
+                        </div>
+                        <div>
+                            <p id="item-total-{{ item.id }}">{% widthratio item.book.price 1 item.quantity %} KES</p>
+                        </div>
+                        <div>
+                            <button onclick="removeFromCart({{ item.id }})" title="Supprimer">Remove</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <div>
+                <div>
+                    <h5>Résumé de la commande</h5>
+                </div>
+                <div>
+                    <div>
+                        <span>Sous-total:</span>
+                        <span id="cart-total">{{ total }} KES</span>
+                    </div>
+                    <div>
+                        <span>Livraison:</span>
+                        <span>Gratuite</span>
+                    </div>
+                    <hr>
+                    <div>
+                        <strong>Total:</strong>
+                        <strong id="cart-final-total">{{ total }} KES</strong>
+                    </div>
+                    
+                    <div>
+                        <a href="{% url 'checkout' %}">Procéder au paiement</a>
+                        <a href="{% url 'book_list' %}">Continuer mes achats</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div>
+        <h3>Your cart is empty</h3>
+        <p>Discover our book collection and add some to your cart.</p>
+        <a href="{% url 'book_list' %}">Explorer les livres</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+}
+
+function changeQuantity(itemId, change) {
+    const quantityInput = document.getElementById(`quantity-${itemId}`);
+    const currentQuantity = parseInt(quantityInput.value);
+    const newQuantity = currentQuantity + change;
+    
+    if (newQuantity < 1) {
+        removeFromCart(itemId);
+        return;
+    }
+    
+    updateQuantity(itemId, newQuantity);
+}
+
+function updateQuantity(itemId, newQuantity) {
+    if (newQuantity < 1) {
+        removeFromCart(itemId);
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('quantity', newQuantity);
+    formData.append('csrfmiddlewaretoken', getCsrfToken());
+    
+    fetch(`/cart/update/${itemId}/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            const quantityInput = document.getElementById(`quantity-${itemId}`);
+            quantityInput.value = newQuantity;
+            
+            const minusBtn = quantityInput.parentElement.querySelector('button:first-child');
+            if (newQuantity <= 1) {
+                minusBtn.disabled = true;
+            } else {
+                minusBtn.disabled = false;
+            }
+            
+            const priceElement = document.querySelector(`#cart-item-${itemId} div:nth-child(3) p`);
+            const price = parseFloat(priceElement.textContent.replace(' KES', ''));
+            document.getElementById(`item-total-${itemId}`).textContent = (price * newQuantity).toFixed(2) + ' KES';
+            
+            document.getElementById('cart-total').textContent = data.total.toFixed(2) + ' KES';
+            document.getElementById('cart-final-total').textContent = data.total.toFixed(2) + ' KES';
+            
+            updateCartCount();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erreur lors de la mise à jour de la quantité');
+    });
+}
+
+function removeFromCart(itemId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet article du panier ?')) {
+        fetch(`/cart/remove/${itemId}/`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`cart-item-${itemId}`).remove();
+                updateCartCount();
+                
+                if (data.cart_count === 0) {
+                    location.reload();
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erreur lors de la suppression de l\'article');
+        });
+    }
+}
+</script>
+{% endblock %}

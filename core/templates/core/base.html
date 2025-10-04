@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BookHub - Votre librairie en ligne{% endblock %}</title>
+</head>
+<body>
+    {% include 'core/includes/header.html' %}
+    {% include 'core/includes/messages.html' %}
+    <div id="logoutModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 5px; text-align: center;">
+            <h3>Confirm Logout</h3>
+            <p>Are you sure you want to logout?</p>
+            <button onclick="logout()" style="margin: 5px; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">Yes, Logout</button>
+            <button onclick="closeModal()" style="margin: 5px; padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    {% include 'core/includes/footer.html' %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+        });
+        
+        function updateCartCount() {
+            {% if user.is_authenticated %}
+            fetch('/cart/count/')
+                .then(response => response.json())
+                .then(data => {
+                    const cartBadge = document.getElementById('cart-count');
+                    if (data.cart_count > 0) {
+                        cartBadge.textContent = data.cart_count;
+                        cartBadge.style.display = 'inline';
+                    } else {
+                        cartBadge.style.display = 'none';
+                    }
+                });
+            {% endif %}
+        }
+        
+        function addToCart(bookId, button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = 'Adding...';
+            button.disabled = true;
+            
+            fetch(`/cart/add/${bookId}/`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.innerHTML = 'Added!';
+                    updateCartCount();
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 2000);
+                } else {
+                    alert(data.message);
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+        
+        function confirmLogout() {
+            document.getElementById('logoutModal').style.display = 'block';
+        }
+        
+        function closeModal() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+        
+        function logout() {
+            window.location.href = '{% url "logout" %}';
+        }
+    </script>
+    
+    {% block extra_js %}
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,47 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Register - BookHub{% endblock %}
+
+{% block content %}
+<div>
+    <div>
+        <div>
+            <div>
+                <div>
+                    <h4>Create Account</h4>
+                </div>
+                <div>
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                        <div>
+                            <label for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <div>{{ field.help_text }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                            <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                        
+                        <div>
+                            <button type="submit">Register</button>
+                        </div>
+                    </form>
+                    
+                    <hr>
+                    
+                    <div>
+                        <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

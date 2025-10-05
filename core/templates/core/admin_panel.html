@@ -1,0 +1,72 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Admin Panel - BookHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Admin Panel</h1>
+    
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Users</h5>
+                    <h2 class="text-primary">{{ users_count }}</h2>
+                    <a href="{% url 'admin_users' %}" class="btn btn-primary">Manage Users</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Books</h5>
+                    <h2 class="text-success">{{ books_count }}</h2>
+                    <a href="{% url 'admin_books' %}" class="btn btn-success">Manage Books</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Orders</h5>
+                    <h2 class="text-warning">{{ orders_count }}</h2>
+                    <a href="{% url 'admin_orders' %}" class="btn btn-warning">View Orders</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Categories</h5>
+                    <h2 class="text-info">{{ categories_count }}</h2>
+                    <a href="#" class="btn btn-info">Manage Categories</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <h3>Quick Actions</h3>
+            <div class="btn-group" role="group">
+                <a href="{% url 'admin_add_user' %}" class="btn btn-outline-primary">Add User</a>
+                <a href="{% url 'admin_add_book' %}" class="btn btn-outline-success">Add Book</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.card-body h2 {
+    font-size: 2.5rem;
+    margin: 10px 0;
+}
+</style>
+{% endblock %}

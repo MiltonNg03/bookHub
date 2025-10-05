@@ -6,6 +6,9 @@
             <ul>
                 <li><a href="{% url 'home' %}">Home</a></li>
                 <li><a href="{% url 'book_list' %}">Books</a></li>
+                {% if user.is_authenticated and user.is_superuser or user.role == 'admin' %}
+                    <li><a href="{% url 'admin_panel' %}">Admin Panel</a></li>
+                {% endif %}
             </ul>
             
             <ul>
@@ -19,6 +22,9 @@
                         <span>{{ user.username }}</span>
                         <ul>
                             <li><a href="{% url 'my_orders' %}">My Orders</a></li>
+                            {% if user.is_superuser or user.role == 'admin' %}
+                                <li><a href="{% url 'admin_panel' %}">Admin Panel</a></li>
+                            {% endif %}
                             <li><a href="#" onclick="confirmLogout()">Logout</a></li>
                         </ul>
                     </li>

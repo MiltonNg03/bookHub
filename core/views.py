@@ -1,11 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse
-from .models import Book, Category, Cart, CartItem, Order, OrderItem, User
-from .forms import UserRegistrationForm, UserLoginForm
+from .models import Book, Category, Cart, CartItem, Order, OrderItem, User, Author
+from .forms import UserRegistrationForm, UserLoginForm, BookForm, UserForm, CategoryForm, AuthorForm
 
 def home(request):
     books = Book.objects.filter(stock_quantity__gt=0)[:8]
@@ -225,6 +225,24 @@ def live_search(request):
     return JsonResponse({'books': books_data})
 
 @login_required
+def my_orders(request):
+    # Récupérer les livres achetés (commandes)
+    purchased_books = OrderItem.objects.filter(order__user=request.user).select_related('book', 'order')
+    
+    # Récupérer les livres dans le panier
+    cart_books = []
+    try:
+        cart = Cart.objects.get(user=request.user)
+        cart_books = CartItem.objects.filter(cart=cart).select_related('book')
+    except Cart.DoesNotExist:
+        pass
+    
+    return render(request, 'core/my_orders.html', {
+        'purchased_books': purchased_books,
+        'cart_books': cart_books
+    })
+
+@login_required
 def checkout(request):
     try:
         cart = Cart.objects.get(user=request.user)
@@ -276,3 +294,60 @@ def checkout(request):
         'cart_items': cart_items,
         'total': total
     })
+
+# Admin Panel Views
+def is_admin(user):
+    return user.is_authenticated and (user.is_superuser or user.role == 'admin')
+
+@user_passes_test(is_admin)
+def admin_panel(request):
+    users_count = User.objects.count()
+    books_count = Book.objects.count()
+    orders_count = Order.objects.count()
+    categories_count = Category.objects.count()
+    
+    return render(request, 'core/admin_panel.html', {
+        'users_count': users_count,
+        'books_count': books_count,
+        'orders_count': orders_count,
+        'categories_count': categories_count
+    })
+
+@user_passes_test(is_admin)
+def admin_users(request):
+    users = User.objects.all().order_by('-created_at')
+    return render(request, 'core/admin_users.html', {'users': users})
+
+@user_passes_test(is_admin)
+def admin_add_user(request):
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'User created successfully!')
+            return redirect('admin_users')
+    else:
+        form = UserForm()
+    return render(request, 'core/admin_add_user.html', {'form': form})
+
+@user_passes_test(is_admin)
+def admin_books(request):
+    books = Book.objects.all().order_by('-created_at')
+    return render(request, 'core/admin_books.html', {'books': books})
+
+@user_passes_test(is_admin)
+def admin_add_book(request):
+    if request.method == 'POST':
+        form = BookForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Book added successfully!')
+            return redirect('admin_books')
+    else:
+        form = BookForm()
+    return render(request, 'core/admin_add_book.html', {'form': form})
+
+@user_passes_test(is_admin)
+def admin_orders(request):
+    orders = Order.objects.all().order_by('-created_at')
+    return render(request, 'core/admin_orders.html', {'orders': orders})

@@ -15,5 +15,13 @@ urlpatterns = [
     path('cart/update/<int:item_id>/', views.update_cart_quantity, name='update_cart_quantity'),
     path('cart/count/', views.get_cart_count, name='get_cart_count'),
     path('live-search/', views.live_search, name='live_search'),
+    path('my-orders/', views.my_orders, name='my_orders'),
     path('checkout/', views.checkout, name='checkout'),
+    # Admin Panel URLs
+    path('admin-panel/', views.admin_panel, name='admin_panel'),
+    path('admin-panel/users/', views.admin_users, name='admin_users'),
+    path('admin-panel/users/add/', views.admin_add_user, name='admin_add_user'),
+    path('admin-panel/books/', views.admin_books, name='admin_books'),
+    path('admin-panel/books/add/', views.admin_add_book, name='admin_add_book'),
+    path('admin-panel/orders/', views.admin_orders, name='admin_orders'),
 ]

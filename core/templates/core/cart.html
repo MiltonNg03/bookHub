@@ -5,33 +5,29 @@
 {% block content %}
 {% csrf_token %}
 <div>
-    <h1>Mon Panier</h1>
     
+    <div class="title" style="height: 25vh;">
+        <h1>Mon Panier</h1>
+        <h5>Articles dans votre panier</h5>
+    </div>    
     {% if cart_items %}
     <div>
         <div>
-            <div>
-                <div>
-                    <h5>Articles dans votre panier</h5>
-                </div>
-                <div>
+            <div class="sous_section_two">
+
                     {% for item in cart_items %}
-                    <div id="cart-item-{{ item.id }}">
-                        <div>
+                    <div id="cart-item-{{ item.id }}" class="book_list">
                             {% if item.book.cover_image %}
-                            <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}">
+                            <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}" style="height: 65%;">
                             {% else %}
                             <div>[Book Image]</div>
                             {% endif %}
-                        </div>
-                        <div>
-                            <h6>{{ item.book.title }}</h6>
-                            <p>par {{ item.book.author.name }}</p>
-                        </div>
-                        <div>
+                        <div style="width: 90%;">
+                            <h3>{{ item.book.title }}</h6>
+                            <p>By {{ item.book.author.name }}</p>
+
                             <p>{{ item.book.price }} KES</p>
-                        </div>
-                        <div>
+
                             <div>
                                 <button type="button" onclick="changeQuantity({{ item.id }}, -1)" 
                                         {% if item.quantity <= 1 %}disabled{% endif %}>-</button>
@@ -40,49 +36,44 @@
                                        onchange="updateQuantity({{ item.id }}, this.value)">
                                 <button type="button" onclick="changeQuantity({{ item.id }}, 1)">+</button>
                             </div>
-                        </div>
-                        <div>
+
                             <p id="item-total-{{ item.id }}">{% widthratio item.book.price 1 item.quantity %} KES</p>
-                        </div>
-                        <div>
+
                             <button onclick="removeFromCart({{ item.id }})" title="Supprimer">Remove</button>
                         </div>
                     </div>
                     {% endfor %}
-                </div>
             </div>
         </div>
         
-        <div>
-            <div>
-                <div>
+        <div class="total_panier">
+            <div class="sous_total_panier">
+                <div style="display: flex;align-items: center;justify-content: center; width: 100%; background-color: darkgray;border-radius: .5rem .5rem 0 0; padding: .5rem 0;">
+                    <img src="../../../../media/book_covers/shopping-cart.svg" alt=""/>
                     <h5>Résumé de la commande</h5>
                 </div>
-                <div>
                     <div>
                         <span>Sous-total:</span>
                         <span id="cart-total">{{ total }} KES</span>
                     </div>
                     <div>
-                        <span>Livraison:</span>
-                        <span>Gratuite</span>
+                        <span>Livraison Gratuite</span>
                     </div>
-                    <hr>
-                    <div>
+                    <hr style="width: 100%;">
+                    <div style="margin-top: .2rem;">
                         <strong>Total:</strong>
                         <strong id="cart-final-total">{{ total }} KES</strong>
                     </div>
                     
-                    <div>
-                        <a href="{% url 'checkout' %}">Procéder au paiement</a>
-                        <a href="{% url 'book_list' %}">Continuer mes achats</a>
+                    <div class="bouble_btn">
+                        <a href="{% url 'book_list' %}"> Add </a> 
+                        <a href="{% url 'checkout' %}">Make paiement</a>
                     </div>
-                </div>
             </div>
         </div>
     </div>
     {% else %}
-    <div>
+    <div style="height: 49vh; display: grid; place-items: center;">
         <h3>Your cart is empty</h3>
         <p>Discover our book collection and add some to your cart.</p>
         <a href="{% url 'book_list' %}">Explorer les livres</a>

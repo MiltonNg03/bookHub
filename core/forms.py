@@ -5,12 +5,12 @@ from .models import User
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'})
+        widget=forms.EmailInput(attrs={'class': 'form-control', })
     )
     phone_number = forms.CharField(
         max_length=15, 
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone number'})
+        widget=forms.TextInput(attrs={'class': 'form-control', })
     )
     address = forms.CharField(
         required=False,

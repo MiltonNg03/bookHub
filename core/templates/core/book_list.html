@@ -3,81 +3,70 @@
 {% block title %}Catalogue des livres - BookHub{% endblock %}
 
 {% block content %}
+    {% include 'core/includes/header.html' %}
+
 <div>
-    <div>
-        <div>
-            <div>
-                <div>
-                    <h5>Filtres</h5>
-                </div>
-                <div>
-                    <h6>Catégories</h6>
-                    <div>
-                        <a href="{% url 'book_list' %}">Toutes les catégories</a>
-                        {% for category in categories %}
-                        <a href="{% url 'book_list' %}?category={{ category.id }}">{{ category.name }}</a>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
+    <div class="title">
+        <h2>Filtres</h2>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{% url 'book_list' %}">Toutes les catégories</a>
+            {% for category in categories %}
+            <a href="{% url 'book_list' %}?category={{ category.id }}">{{ category.name }}</a>
+            {% endfor %}
         </div>
+        <div>
+            <input type="text" id="live-search" placeholder="Search" autocomplete="off">
+            <div id="search-results" style="display: none;"></div>
+        </div>        
+    </div>
+        
+    <div>
         
         <div>
-            <div>
-                <div>
-                    <input type="text" id="live-search" placeholder="Rechercher un livre en temps réel..." autocomplete="off">
-                    <div id="search-results" style="display: none;"></div>
-                </div>
-            </div>
-            
-            <div>
-                <h2>Notre collection de livres</h2>
-                <span id="book-count">{{ books.count }} livre(s) trouvé(s)</span>
-            </div>
-            
-            {% if request.GET.search %}
-            <div>
-                Résultats de recherche pour : "{{ request.GET.search }}"
-                <a href="{% url 'book_list' %}">Voir tous les livres</a>
-            </div>
-            {% endif %}
-            
-            <div id="books-container">
-                {% for book in books %}
-                <div>
+            <h2>Notre collection de livres</h2>
+            <span id="book-count">{{ books.count }} livre(s) trouvé(s)</span>
+        </div>
+        
+        {% if request.GET.search %}
+        <div>
+            Résultats de recherche pour : "{{ request.GET.search }}"
+            <a href="{% url 'book_list' %}">Voir tous les livres</a>
+        </div>
+        {% endif %}
+        
+        <div class="sous_section_two">
+            {% for book in books %}
+            <div class="book_list" style="height: 75vh;">
+                {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+                {% else %}
+                <div>[Book Image]</div>
+                {% endif %}
+                <div style="width: 90%;">
+                    <h5>{{ book.title }}</h5>
+                    <p>
+                        <strong>Author:</strong> {{ book.author.name }}<br>
+                        <strong>Category:</strong> {{ book.category.name }}
+                    </p>
+                    <p>{{ book.description|truncatewords:20 }}</p>
                     <div>
-                        {% if book.cover_image %}
-                        <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
-                        {% else %}
-                        <div>[Book Image]</div>
-                        {% endif %}
+                        <p>{{ book.price }} KES</p>
                         <div>
-                            <h5>{{ book.title }}</h5>
-                            <p>
-                                <strong>Author:</strong> {{ book.author.name }}<br>
-                                <strong>Category:</strong> {{ book.category.name }}
-                            </p>
-                            <p>{{ book.description|truncatewords:20 }}</p>
-                            <div>
-                                <p>{{ book.price }} KES</p>
-                                <div>
-                                    <a href="{% url 'book_detail' book.id %}">View Details</a>
-                                    {% if user.is_authenticated %}
-                                    <button onclick="addToCart({{ book.id }}, this)">Add to Cart</button>
-                                    {% endif %}
-                                </div>
-                            </div>
+                            <a href="{% url 'book_detail' book.id %}">View Details</a>
+                            {% if user.is_authenticated %}
+                            <button onclick="addToCart({{ book.id }}, this)">Add to Cart</button>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
-                {% empty %}
-                <div>
-                    <h4>No books found</h4>
-                    <p>Try modifying your search criteria.</p>
-                    <a href="{% url 'book_list' %}">View all books</a>
-                </div>
-                {% endfor %}
             </div>
+            {% empty %}
+            <div>
+                <h4>No books found</h4>
+                <p>Try modifying your search criteria.</p>
+                <a href="{% url 'book_list' %}">View all books</a>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </div>
@@ -122,15 +111,15 @@ function displaySearchResults(books) {
     let html = '';
     books.forEach(book => {
         html += `
-            <div onclick="window.location.href='/books/${book.id}/'">
-                <div>
-                    <div>
+
+            <div onclick="window.location.href='/books/${book.id}/'" class="search_result">
+                <div class="sous_section_two">
+                    <div class="book_list">
                         ${book.cover_image ? 
                             `<img src="${book.cover_image}" alt="${book.title}">` :
                             '<div>[Book Image]</div>'
                         }
-                    </div>
-                    <div>
+
                         <h6>${book.title}</h6>
                         <p>par ${book.author}</p>
                         <p>${book.price} KES</p>

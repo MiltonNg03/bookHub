@@ -1,43 +1,35 @@
 {% extends 'core/base.html' %}
-
 {% block title %}Login - BookHub{% endblock %}
 
 {% block content %}
-<div>
-    <div>
+<div class="login">
+    <div class="sous_login">
         <div>
-            <div>
-                <div>
-                    <h4>Login</h4>
-                </div>
-                <div>
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        {% for field in form %}
-                        <div>
-                            <label for="{{ field.id_for_label }}">
-                                {{ field.label }}
-                            </label>
-                            {{ field }}
-                            {% for error in field.errors %}
-                            <div>{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                        {% endfor %}
-                        
-                        <div>
-                            <button type="submit">Login</button>
-                        </div>
-                    </form>
-                    
-                    <hr>
-                    
-                    <div>
-                        <p>New to BookHub? <a href="{% url 'register' %}">Create an account here</a></p>
-                    </div>
-                </div>
+            <h4>Login</h4>
+        </div>
+        <form method="post" style="width: 90%;display: flex; flex-direction: column;gap: .5rem; ">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div style="display: flex; flex-direction: column;gap: .5rem; width: 100%;">
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {% for error in field.errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
             </div>
+            {% endfor %}
+            
+            <div class="btn_submit">
+                <button type="submit">Login</button>
+            </div>
+        </form>
+        
+        
+        <div>
+            <p>New to BookHub? <a href="{% url 'register' %}">Create an account here</a></p>
         </div>
     </div>
 </div>

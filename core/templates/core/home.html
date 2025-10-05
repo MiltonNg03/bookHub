@@ -4,83 +4,70 @@
 
 {% block content %}
 {% csrf_token %}
-<section>
-    <div>
-        <div>
-            <div>
-                <h1>Welcome to BookHub</h1>
-                <p>Discover our vast collection of books. From fiction to non-fiction, find your next great read.</p>
-                <a href="{% url 'book_list' %}">Explore Books</a>
-            </div>
-        </div>
-    </div>
+    {% include 'core/includes/header.html' %}
+<section class="section_one">
+
+    <h1>Welcome to BookHub</h1>
+    <p>Discover our vast collection of books. From fiction to non-fiction, find your next great read.</p>
+    <a href="{% url 'book_list' %}">Explore Books</a>
+ 
 </section>
 
-<section>
-    <div>
-        <div>
+<section class="section_two">
+
+    <div class="title">
+        <h2>Featured Books</h2>
+        <p>Discover our best selections</p>
+    </div>
+
+
+    <div class="sous_section_two">
+        {% for book in books %}
+        <div class="book_list">
+            {% if book.cover_image %}
+            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+            {% else %}
             <div>
-                <h2>Featured Books</h2>
-                <p>Discover our best selections</p>
+                [Book Image]
             </div>
-        </div>
-        
-        <div>
-            {% for book in books %}
-            <div>
+            {% endif %}
+            <div style="width: 90%;">
+                <h5>{{ book.title }}</h5>
+                <p>{{ book.author.name }}</p>
                 <div>
-                    {% if book.cover_image %}
-                    <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
-                    {% else %}
+                    <p>{{ book.price }} KES</p>
                     <div>
-                        [Book Image]
-                    </div>
-                    {% endif %}
-                    <div>
-                        <h5>{{ book.title }}</h5>
-                        <p>{{ book.author.name }}</p>
-                        <div>
-                            <p>{{ book.price }} KES</p>
-                            <div>
-                                <a href="{% url 'book_detail' book.id %}">View Details</a>
-                                {% if user.is_authenticated %}
-                                <button onclick="addToCart({{ book.id }}, this)">Add to Cart</button>
-                                {% endif %}
-                            </div>
-                        </div>
+                        <a href="{% url 'book_detail' book.id %}">View Details</a>
+                        {% if user.is_authenticated %}
+                        <button onclick="addToCart({{ book.id }}, this)">Add to Cart</button>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-            {% empty %}
-            <div>
-                <p>No books available at the moment.</p>
-            </div>
-            {% endfor %}
         </div>
+        {% empty %}
+        <div>
+            <p>No books available at the moment.</p>
+        </div>
+        {% endfor %}
     </div>
 </section>
 
-<section>
-    <div>
-        <div>
-            <div>
-                <h2>Popular Categories</h2>
-            </div>
-        </div>
+<section class="section_three">
+
+    <div class="title">
+        <h2>Popular Categories</h2>
+    </div>
+
         
+    <div class="popular_books">
+        {% for category in categories %}
         <div>
-            {% for category in categories %}
-            <div>
-                <div>
-                    <div>
-                        <h5>{{ category.name }}</h5>
-                        <p>{{ category.description|truncatewords:10 }}</p>
-                        <a href="{% url 'book_list' %}?category={{ category.id }}">Explore</a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+            <h5>{{ category.name }}</h5>
+            <p>{{ category.description|truncatewords:10 }}</p>
+            <a href="{% url 'book_list' %}?category={{ category.id }}">Explore</a>
         </div>
+        {% endfor %}
     </div>
 </section>
 {% endblock %}

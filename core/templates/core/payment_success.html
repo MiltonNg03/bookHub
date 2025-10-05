@@ -3,58 +3,22 @@
 {% block title %}Payment Successful - BookHub{% endblock %}
 
 {% block content %}
-<div>
-    <div>
+<div class='login'>
+    <div class="sous_login" style="padding: .5rem; display: flex;flex-direction: column;justify-content: space-around;">
         <div>
-            <div>
-                <div>
-                    <h3>Payment Successful!</h3>
-                </div>
-                <div>
-                    <div>
-                        <h4>Simulation Complete</h4>
-                        <p>This transaction is a simulation for a school presentation</p>
-                    </div>
-                    
-                    <h5>Thank you for your order!</h5>
-                    <p>Your order has been processed successfully.</p>
-                    
-                    <div>
-                        <div>
-                            <div>
-                                <h6>Order Number</h6>
-                                <strong>#{{ order.id }}</strong>
-                            </div>
-                        </div>
-                        <div>
-                            <div>
-                                <h6>Amount Paid</h6>
-                                <strong>{{ order.total_amount }} KES</strong>
-                            </div>
-                        </div>
-                        <div>
-                            <div>
-                                <h6>Status</h6>
-                                <span>Confirmed</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h6>Next Steps:</h6>
-                        <ul>
-                            <li>Your books will be shipped within 24-48h</li>
-                            <li>Order tracking available</li>
-                        </ul>
-                    </div>
-                    
-                    <div>
-                        <a href="{% url 'home' %}">Back to Home</a>
-                        <a href="{% url 'book_list' %}">Continue Shopping</a>
-                    </div>
-                </div>
-            </div>
+            <h3>Payment Successful!</h3>
         </div>
+        <div style="display: flex;flex-direction: column;justify-content: center; align-items: center; gap: .5rem;">
+            <h5>Thank you for your order!</h5>            
+            <div>
+                <h6>Amount Paid</h6>
+                <strong>{{ order.total_amount }} KES</strong>
+            </div>
+            <h5>Status Confirmed</h5>
+        </div>
+        <div class="btn_submit">
+            <a href="{% url 'home' %}">Back to Home</a>
+        </div>        
     </div>
 </div>
 {% endblock %}

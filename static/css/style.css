@@ -1,0 +1,287 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+
+.header {
+    height: 10vh;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;width: 100%;
+    backdrop-filter: blur(5px);
+}
+
+.title_header{
+    color: cadetblue;
+    font-weight: bold;
+    font-size: 1.6rem;
+}
+
+.sous_header {
+    width: 90%;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-links{
+    display: flex;
+    gap: 1rem;
+}
+
+.header ul{
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 20px;    
+    border: solid 2px;
+    border-radius: .5rem;
+    padding: .3rem 1rem;
+    color: cadetblue;
+}
+a:-webkit-any-link {
+    text-decoration: none;
+}
+
+.header ul li{
+    display: flex;
+    gap: 2rem;
+}
+
+
+/*************************************************************/
+.section_one{
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    background-image: url(../../media/book_covers/bg.jpg);
+    background-position: center;
+    background-size: cover;
+    color: #fff;
+}
+
+.section_one a{
+    background-color: cadetblue;
+    color: #fff;
+    padding: .5rem 1rem;
+    border-radius: .5rem;
+}
+
+/**********************************************************/
+.title{
+    height: 40vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+}
+
+.title h2{
+    font-size: 3rem;
+}
+
+.sous_section_two{
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;    
+
+}
+
+.book_list{
+    width: 23%;
+    height: 65vh;
+    margin-bottom: 1rem ;
+    border-radius: .5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0px 2px 10px 2px rgba(0, 0, 0, 0.274);
+}
+
+.book_list img{
+    width: 100%;
+    height: 75%;
+    border-radius: .5rem .5rem  0 0;
+    object-fit: cover;
+}
+
+/***************************************************************/
+.section_three .popular_books{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5rem;
+
+}
+
+/***************************************************************/
+footer{
+    background-color: cadetblue;
+
+}
+
+.sous_footer{
+    height: 20vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.sous_footer div:first-child{
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.sous_footer div:first-child h5{
+    font-size: 2rem;
+}
+
+
+
+
+/*********************************************************
+**********************************************************/
+.title_book_detail{
+    height: 30vh;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+
+}
+
+.title_book_detail h2{
+    font-size: 3rem;
+    margin-left: 20%;
+}
+
+.book_detail{
+    width: 100%;
+    display: flex;    
+    padding-left: 3rem;
+    gap: 5rem;
+}
+
+.search_result{
+    position: absolute;top:30vh;
+    left: 0; width: 100%;
+    background-color: cadetblue;
+    padding-top: 1rem;
+    z-index: 2;
+}
+/*********************************************************
+*************************Login*********************************/
+
+.login{
+    height: 74vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.sous_login{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 65%; width: 20rem;
+    align-items: center;
+    border: solid 1px ;
+    border-radius: .5rem;
+    box-shadow: 0px 2px 10px 2px rgba(0, 0, 0, 0.274);
+
+}
+
+.sous_login h4{
+    font-size: 2rem;
+    text-decoration: underline;
+}
+
+.btn_submit{
+    width: 100%;
+    display: grid;
+    place-items: center;
+}
+
+.btn_submit button{
+    background-color: cadetblue;
+    border: none;
+    border-radius: .4rem;
+    padding: .5rem 1.5rem;
+}
+
+textarea{
+    max-width: 100%;
+    min-width: 100%;
+    min-height: 1.5rem ;
+    max-height: 2rem;
+}
+
+input{
+    padding: .1rem .5rem;
+}
+
+/*********************************************************
+*************************Register*********************************/
+.register{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 95%; width: 20rem;
+    align-items: center;
+    border: solid 1px ;
+    border-radius: .5rem;
+    box-shadow: 0px 2px 10px 2px rgba(0, 0, 0, 0.274);
+}
+
+/*********************************************************
+*************************Card*********************************/
+.total_panier{
+    display: grid;
+    place-items: center;
+    height: 40vh;
+}
+
+.sous_total_panier{
+    border: solid 1px;
+    width: 20rem;
+    border-radius: .5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+}
+
+.bouble_btn{
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    padding:  .5rem;
+}
+
+.bouble_btn a{
+    padding: .2rem 1rem;
+    border-radius: .5rem;
+}
+
+.bouble_btn a:first-child{    
+    border: solid 1px cadetblue;
+}
+
+.bouble_btn a:last-child{
+    background-color: cadetblue;
+
+}

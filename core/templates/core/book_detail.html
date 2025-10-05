@@ -4,28 +4,28 @@
 
 {% block content %}
 <div>
-    <nav>
-        <ol>
-            <li><a href="{% url 'home' %}">Home</a></li>
+    <nav class="header">
+        <ul class="sous_header">
+            <li class="title_header"><a href="{% url 'home' %}">Home</a></li>
             <li><a href="{% url 'book_list' %}">Books</a></li>
-            <li>{{ book.title }}</li>
-        </ol>
+        </ul>
     </nav>
+    <div class="title_book_detail">
+        <h2> Book: {{ book.title }}</h2>
+    </div>
     
-    <div>
-        <div>
-            {% if book.cover_image %}
-            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
-            {% else %}
-            <div>[Book Image]</div>
-            {% endif %}
-        </div>
+    <div class="book_detail">
+        {% if book.cover_image %}
+        <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+        {% else %}
+        <div>[Book Image]</div>
+        {% endif %}
         
-        <div>
-            <h1>{{ book.title }}</h1>
-            <p>by {{ book.author.name }}</p>
+        <div >
+            
             
             <div>
+                <p>by {{ book.author.name }}</p>
                 <span>{{ book.category.name }}</span>
                 <span>ISBN: {{ book.isbn }}</span>
             </div>

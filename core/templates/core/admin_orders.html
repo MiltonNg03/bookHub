@@ -22,7 +22,7 @@
                 <tr>
                     <td>#{{ order.id }}</td>
                     <td>{{ order.user.username }}</td>
-                    <td>${{ order.total_amount }}</td>
+                    <td>KES{{ order.total_amount }}</td>
                     <td>
                         <span class="badge {% if order.status == 'completed' %}bg-success{% elif order.status == 'pending' %}bg-warning{% else %}bg-secondary{% endif %}">
                             {{ order.get_status_display }}

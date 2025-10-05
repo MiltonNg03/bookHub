@@ -29,7 +29,7 @@
                     <td>{{ book.title }}</td>
                     <td>{{ book.author.name }}</td>
                     <td>{{ book.category.name }}</td>
-                    <td>${{ book.price }}</td>
+                    <td>KES {{ book.price }}</td>
                     <td>
                         <span class="badge {% if book.stock_quantity > 10 %}bg-success{% elif book.stock_quantity > 0 %}bg-warning{% else %}bg-danger{% endif %}">
                             {{ book.stock_quantity }}

@@ -3,42 +3,51 @@
 {% block title %}Manage Orders - Admin Panel{% endblock %}
 
 {% block content %}
-<div class="container mt-4" style="margin-top: 10vh;">
+<div class="title">
     <h1>Manage Orders</h1>
+    <h5>View all customer orders</h5>
+</div>
+
+<div style="width: 90%; margin: 0 auto; padding: 2rem 0;">
+    <div style="margin-bottom: 2rem;">
+        <h3>All Orders</h3>
+    </div>
     
-    <div class="table-responsive mt-4">
-        <table class="table table-striped">
-            <thead>
+    <div style="overflow-x: auto; box-shadow: 0px 2px 10px 2px rgba(0, 0, 0, 0.274); border-radius: 0.5rem;">
+        <table style="width: 100%; border-collapse: collapse; background: white;">
+            <thead style="background-color: cadetblue; color: white;">
                 <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Total Amount</th>
-                    <th>Status</th>
-                    <th>Date</th>
+                    <th style="padding: 1rem; text-align: left;">Order ID</th>
+                    <th style="padding: 1rem; text-align: left;">Customer</th>
+                    <th style="padding: 1rem; text-align: left;">Total Amount</th>
+                    <th style="padding: 1rem; text-align: left;">Status</th>
+                    <th style="padding: 1rem; text-align: left;">Date</th>
                 </tr>
             </thead>
             <tbody>
                 {% for order in orders %}
-                <tr>
-                    <td>#{{ order.id }}</td>
-                    <td>{{ order.user.username }}</td>
-                    <td>KES{{ order.total_amount }}</td>
-                    <td>
-                        <span class="badge {% if order.status == 'completed' %}bg-success{% elif order.status == 'pending' %}bg-warning{% else %}bg-secondary{% endif %}">
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 1rem;">#{{ order.id }}</td>
+                    <td style="padding: 1rem;">{{ order.user.username }}</td>
+                    <td style="padding: 1rem;">KES{{ order.total_amount }}</td>
+                    <td style="padding: 1rem;">
+                        <span style="padding: 0.2rem 0.5rem; border-radius: 0.3rem; {% if order.status == 'completed' %}background-color: #28a745; color: white;{% elif order.status == 'pending' %}background-color: #ffc107; color: black;{% else %}background-color: #6c757d; color: white;{% endif %}">
                             {{ order.get_status_display }}
                         </span>
                     </td>
-                    <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
+                    <td style="padding: 1rem;">{{ order.created_at|date:"M d, Y H:i" }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="text-center">No orders found.</td>
+                    <td colspan="5" style="padding: 2rem; text-align: center;">No orders found.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     
-    <a href="{% url 'admin_panel' %}" class="btn btn-secondary">Back to Admin Panel</a>
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'admin_panel' %}" style="border: solid 1px cadetblue; color: cadetblue; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none;">Back to Admin Panel</a>
+    </div>
 </div>
 {% endblock %}

@@ -342,7 +342,8 @@ def admin_add_book(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Book added successfully!')
-            return redirect('admin_books')
+            form = BookForm()
+            return render(request, 'core/admin_add_book.html', {'form': form})
     else:
         form = BookForm()
     return render(request, 'core/admin_add_book.html', {'form': form})
@@ -351,3 +352,14 @@ def admin_add_book(request):
 def admin_orders(request):
     orders = Order.objects.all().order_by('-created_at')
     return render(request, 'core/admin_orders.html', {'orders': orders})
+
+from django.views.decorators.csrf import csrf_exempt
+
+@user_passes_test(is_admin)
+@csrf_exempt
+def admin_delete_user(request, user_id):
+    if request.method == 'POST':
+        user = get_object_or_404(User, id=user_id)
+        user.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})

@@ -3,68 +3,107 @@
 {% block title %}Add Book - Admin Panel{% endblock %}
 
 {% block content %}
-<div class="container mt-4" style="margin-top: 10vh;">
+<div class="title">
     <h1>Add New Book</h1>
-    
-    <div class="row">
-        <div class="col-md-8">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                
-                <div class="mb-3">
-                    <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
-                    {{ form.title }}
+    <h5>Add a book to inventory</h5>
+</div>
+
+<div style="display: flex; justify-content: center; padding: 2rem 0;">
+    <div class="sous_login" style="width: 30rem; height: auto; padding: 2rem;">
+        <h4>Book Information</h4>
+        
+        <form method="post" enctype="multipart/form-data" style="width: 100%; display: flex; flex-direction: column; gap: 1rem;">
+            {% csrf_token %}
+            
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Title</label>
+                {{ form.title }}
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Author</label>
+                    {{ form.author_name }}
                 </div>
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="{{ form.author.id_for_label }}" class="form-label">Author</label>
-                            {{ form.author }}
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
-                            {{ form.category }}
-                        </div>
-                    </div>
+                <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Category</label>
+                    <select name="selected_category" id="category-select" style="width: 100%; padding: 0.1rem 0.5rem;">
+                        <option value="">Select Category</option>
+                        <option value="Literature">Literature</option>
+                        <option value="Educational / School Books">Educational / School Books</option>
+                        <option value="Science and Technology">Science and Technology</option>
+                        <option value="Human and Social Sciences">Human and Social Sciences</option>
+                        <option value="Economics and Management">Economics and Management</option>
+                        <option value="Languages">Languages</option>
+                        <option value="Personal Development">Personal Development</option>
+                        <option value="Arts and Culture">Arts and Culture</option>
+                        <option value="Religion and Spirituality">Religion and Spirituality</option>
+                        <option value="Leisure and Practical Life">Leisure and Practical Life</option>
+                        <option value="Health / Well-being">Health / Well-being</option>
+                        <option value="Sustainable Development / Ecology">Sustainable Development / Ecology</option>
+                        <option value="Biographies and Testimonies">Biographies and Testimonies</option>
+                        <option value="Law">Law</option>
+                        <option value="Methodology / Research">Methodology / Research</option>
+                    </select>
+
                 </div>
-                
-                <div class="mb-3">
-                    <label for="{{ form.isbn.id_for_label }}" class="form-label">ISBN</label>
-                    {{ form.isbn }}
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">ISBN</label>
+                {{ form.isbn }}
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Description</label>
+                {{ form.description }}
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Price (KES)</label>
+                    {{ form.price }}
                 </div>
-                
-                <div class="mb-3">
-                    <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
-                    {{ form.description }}
+                <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Stock Quantity</label>
+                    {{ form.stock_quantity }}
                 </div>
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="{{ form.price.id_for_label }}" class="form-label">Price (KES)</label>
-                            {{ form.price }}
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="{{ form.stock_quantity.id_for_label }}" class="form-label">Stock Quantity</label>
-                            {{ form.stock_quantity }}
-                        </div>
-                    </div>
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Cover Image</label>
+                {{ form.cover_image }}
+                <div id="image-preview" style="margin-top: 1rem; text-align: center;">
+                    <img id="preview-img" src="" alt="Preview" style="max-width: 200px; max-height: 200px; display: none; border: 1px solid #ddd; border-radius: 0.5rem;">
                 </div>
-                
-                <div class="mb-3">
-                    <label for="{{ form.cover_image.id_for_label }}" class="form-label">Cover Image</label>
-                    {{ form.cover_image }}
-                </div>
-                
-                <button type="submit" class="btn btn-primary">Add Book</button>
-                <a href="{% url 'admin_books' %}" class="btn btn-secondary">Cancel</a>
-            </form>
+            </div>
+            
+            <div class="btn_submit" style="margin-top: 1rem;">
+                <button type="submit">Add Book</button>
+            </div>
+        </form>
+        
+        <div style="margin-top: 1rem; text-align: center;">
+            <a href="{% url 'admin_books' %}" style="color: cadetblue; text-decoration: none;">Cancel</a>
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('id_cover_image').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('preview-img');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+    }
+});
+</script>
 {% endblock %}

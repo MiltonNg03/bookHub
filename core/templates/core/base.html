@@ -43,11 +43,13 @@
                 .then(response => response.json())
                 .then(data => {
                     const cartBadge = document.getElementById('cart-count');
-                    if (data.cart_count > 0) {
-                        cartBadge.textContent = data.cart_count;
-                        cartBadge.style.display = 'inline';
-                    } else {
-                        cartBadge.style.display = 'none';
+                    if (cartBadge) {
+                        if (data.cart_count > 0) {
+                            cartBadge.textContent = data.cart_count;
+                            cartBadge.style.display = 'inline';
+                        } else {
+                            cartBadge.style.display = 'none';
+                        }
                     }
                 });
             {% endif %}

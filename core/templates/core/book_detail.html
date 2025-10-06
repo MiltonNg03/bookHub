@@ -21,47 +21,30 @@
         <div>[Book Image]</div>
         {% endif %}
         
-        <div >
+        <div class="book_detail_info">
+            <h1>{{ book.title }}</h1>
             
+            <p><strong>Author:</strong> {{ book.author.name }}</p>
+            <p><strong>Category:</strong> {{ book.category.name }}</p>
+            <p><strong>ISBN:</strong> {{ book.isbn }}</p>
             
-            <div>
-                <p>by {{ book.author.name }}</p>
-                <span>{{ book.category.name }}</span>
-                <span>ISBN: {{ book.isbn }}</span>
-            </div>
+            <div class="price">{{ book.price }} KES</div>
             
-            <div>
-                <h2>{{ book.price }} KES</h2>
-                {% if book.stock_quantity > 0 %}
-                <span>In stock ({{ book.stock_quantity }} available)</span>
-                {% else %}
-                <span>Out of stock</span>
-                {% endif %}
-            </div>
+            {% if book.stock_quantity > 0 %}
+            <p style="color: green;">✓ In stock ({{ book.stock_quantity }} available)</p>
+            {% else %}
+            <p style="color: red;">✗ Out of stock</p>
+            {% endif %}
             
-            <div>
-                <h4>Description</h4>
+            <div style="margin: 1.5rem 0;">
+                <h3>Description</h3>
                 <p>{{ book.description }}</p>
             </div>
             
-            <div>
-                <h4>Information</h4>
-                <ul>
-                    <li><strong>Author:</strong> {{ book.author.name }}</li>
-                    <li><strong>Category:</strong> {{ book.category.name }}</li>
-                    <li><strong>ISBN:</strong> {{ book.isbn }}</li>
-                    <li><strong>Date added:</strong> {{ book.created_at|date:"d/m/Y" }}</li>
-                </ul>
-            </div>
-            
             {% if user.is_authenticated and book.stock_quantity > 0 %}
-            <div>
-                <button onclick="addToCart({{ book.id }}, this)">Add to Cart</button>
-            </div>
+            <button onclick="addToCart({{ book.id }}, this)">Add to Cart</button>
             {% elif not user.is_authenticated %}
-            <div>
-                <a href="{% url 'login' %}">Login</a> to add this book to your cart.
-            </div>
+            <p><a href="{% url 'login' %}" style="color: cadetblue;">Login</a> to add this book to your cart.</p>
             {% endif %}
         </div>
     </div>

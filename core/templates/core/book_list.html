@@ -42,21 +42,14 @@
                 {% else %}
                 <div>[Book Image]</div>
                 {% endif %}
-                <div style="width: 90%;">
-                    <h5>{{ book.title }}</h5>
-                    <p>
-                        <strong>Author:</strong> {{ book.author.name }}<br>
-                        <strong>Category:</strong> {{ book.category.name }}
-                    </p>
-                    <p>{{ book.description|truncatewords:20 }}</p>
-                    <div>
-                        <p>{{ book.price }} KES</p>
-                        <div>
-                            <a href="{% url 'book_detail' book.id %}">View Details</a>
-                            {% if user.is_authenticated %}
-                            <button onclick="addToCart({{ book.id }}, this)">Add to Cart</button>
-                            {% endif %}
-                        </div>
+                <div style="width: 90%; padding: 1rem; text-align: center;">
+                    <h5 style="margin-bottom: 0.5rem; font-weight: bold; font-size: 1.3rem;">{{ book.title }}</h5>
+                    <p style="font-weight: bold; color: cadetblue; font-size: 1.1rem;">{{ book.price }} KES</p>
+                    <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; width: 100%;">
+                        <a href="{% url 'book_detail' book.id %}" style="background-color: cadetblue; color: white; padding: 0.4rem 0.8rem; border-radius: 0.3rem; text-decoration: none; font-size: 0.9rem;">View Details</a>
+                        {% if user.is_authenticated %}
+                        <button onclick="addToCart({{ book.id }}, this)" style="background-color: #28a745; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 0.3rem; cursor: pointer; font-size: 0.9rem;">Add to Cart</button>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -78,6 +71,12 @@
 let searchTimeout;
 const searchInput = document.getElementById('live-search');
 const searchResults = document.getElementById('search-results');
+let originalContent = '';
+
+// Sauvegarder le contenu original au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    originalContent = document.querySelector('.sous_section_two').innerHTML;
+});
 
 searchInput.addEventListener('input', function() {
     const query = this.value.trim();
@@ -85,7 +84,9 @@ searchInput.addEventListener('input', function() {
     clearTimeout(searchTimeout);
     
     if (query.length === 0) {
-        searchResults.style.display = 'none';
+        // Restaurer le contenu original
+        document.querySelector('.sous_section_two').innerHTML = originalContent;
+        document.getElementById('book-count').textContent = '{{ books.count }} livre(s) trouvé(s)';
         return;
     }
     
@@ -102,35 +103,38 @@ searchInput.addEventListener('input', function() {
 });
 
 function displaySearchResults(books) {
+    const bookContainer = document.querySelector('.sous_section_two');
+    const bookCountElement = document.getElementById('book-count');
+    
     if (books.length === 0) {
-        searchResults.innerHTML = '<div>No books found</div>';
-        searchResults.style.display = 'block';
+        bookContainer.innerHTML = '<div style="text-align: center; width: 100%;"><h4>No books found</h4><p>Try modifying your search criteria.</p></div>';
+        bookCountElement.textContent = '0 livre(s) trouvé(s)';
         return;
     }
     
     let html = '';
     books.forEach(book => {
         html += `
-
-            <div onclick="window.location.href='/books/${book.id}/'" class="search_result">
-                <div class="sous_section_two">
-                    <div class="book_list">
-                        ${book.cover_image ? 
-                            `<img src="${book.cover_image}" alt="${book.title}">` :
-                            '<div>[Book Image]</div>'
-                        }
-
-                        <h6>${book.title}</h6>
-                        <p>par ${book.author}</p>
-                        <p>${book.price} KES</p>
+            <div class="book_list" style="height: 75vh;">
+                ${book.cover_image ? 
+                    `<img src="${book.cover_image}" alt="${book.title}">` :
+                    '<div>[Book Image]</div>'
+                }
+                <div style="width: 90%;">
+                    <h5>${book.title}</h5>
+                    <p><strong>Author:</strong> ${book.author}</p>
+                    <p>${book.price} KES</p>
+                    <div>
+                        <a href="/books/${book.id}/">View Details</a>
+                        <button onclick="addToCart(${book.id}, this)">Add to Cart</button>
                     </div>
                 </div>
             </div>
         `;
     });
     
-    searchResults.innerHTML = html;
-    searchResults.style.display = 'block';
+    bookContainer.innerHTML = html;
+    bookCountElement.textContent = `${books.length} livre(s) trouvé(s)`;
 }
 
 document.addEventListener('click', function(event) {

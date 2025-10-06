@@ -24,4 +24,5 @@ urlpatterns = [
     path('admin-panel/books/', views.admin_books, name='admin_books'),
     path('admin-panel/books/add/', views.admin_add_book, name='admin_add_book'),
     path('admin-panel/orders/', views.admin_orders, name='admin_orders'),
+    path('admin-panel/users/delete/<int:user_id>/', views.admin_delete_user, name='admin_delete_user'),
 ]

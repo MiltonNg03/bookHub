@@ -3,49 +3,56 @@
 {% block title %}Manage Books - Admin Panel{% endblock %}
 
 {% block content %}
-<div class="container mt-4" style="margin-top: 10vh;">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Manage Books</h1>
-        <a href="{% url 'admin_add_book' %}" class="btn btn-primary">Add New Book</a>
+<div class="title">
+    <h1>Manage Books</h1>
+    <h5>View and manage book inventory</h5>
+</div>
+
+<div style="width: 90%; margin: 0 auto; padding: 2rem 0;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h3>All Books</h3>
+        <a href="{% url 'admin_add_book' %}" style="background-color: cadetblue; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none;">Add New Book</a>
     </div>
     
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
+    <div style="overflow-x: auto; box-shadow: 0px 2px 10px 2px rgba(0, 0, 0, 0.274); border-radius: 0.5rem;">
+        <table style="width: 100%; border-collapse: collapse; background: white;">
+            <thead style="background-color: cadetblue; color: white;">
                 <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Created</th>
+                    <th style="padding: 1rem; text-align: left;">ID</th>
+                    <th style="padding: 1rem; text-align: left;">Title</th>
+                    <th style="padding: 1rem; text-align: left;">Author</th>
+                    <th style="padding: 1rem; text-align: left;">Category</th>
+                    <th style="padding: 1rem; text-align: left;">Price</th>
+                    <th style="padding: 1rem; text-align: left;">Stock</th>
+                    <th style="padding: 1rem; text-align: left;">Created</th>
                 </tr>
             </thead>
             <tbody>
                 {% for book in books %}
-                <tr>
-                    <td>{{ book.id }}</td>
-                    <td>{{ book.title }}</td>
-                    <td>{{ book.author.name }}</td>
-                    <td>{{ book.category.name }}</td>
-                    <td>KES {{ book.price }}</td>
-                    <td>
-                        <span class="badge {% if book.stock_quantity > 10 %}bg-success{% elif book.stock_quantity > 0 %}bg-warning{% else %}bg-danger{% endif %}">
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 1rem;">{{ book.id }}</td>
+                    <td style="padding: 1rem;">{{ book.title }}</td>
+                    <td style="padding: 1rem;">{{ book.author.name }}</td>
+                    <td style="padding: 1rem;">{{ book.category.name }}</td>
+                    <td style="padding: 1rem;">KES{{ book.price }}</td>
+                    <td style="padding: 1rem;">
+                        <span style="padding: 0.2rem 0.5rem; border-radius: 0.3rem; {% if book.stock_quantity > 10 %}background-color: #28a745; color: white;{% elif book.stock_quantity > 0 %}background-color: #ffc107; color: black;{% else %}background-color: #dc3545; color: white;{% endif %}">
                             {{ book.stock_quantity }}
                         </span>
                     </td>
-                    <td>{{ book.created_at|date:"M d, Y" }}</td>
+                    <td style="padding: 1rem;">{{ book.created_at|date:"M d, Y" }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="text-center">No books found.</td>
+                    <td colspan="7" style="padding: 2rem; text-align: center;">No books found.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     
-    <a href="{% url 'admin_panel' %}" class="btn btn-secondary">Back to Admin Panel</a>
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'admin_panel' %}" style="border: solid 1px cadetblue; color: cadetblue; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none;">Back to Admin Panel</a>
+    </div>
 </div>
 {% endblock %}

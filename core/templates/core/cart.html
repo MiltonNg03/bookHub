@@ -136,9 +136,14 @@ function updateQuantity(itemId, newQuantity) {
                 minusBtn.disabled = false;
             }
             
-            const priceElement = document.querySelector(`#cart-item-${itemId} div:nth-child(3) p`);
-            const price = parseFloat(priceElement.textContent.replace(' KES', ''));
-            document.getElementById(`item-total-${itemId}`).textContent = (price * newQuantity).toFixed(2) + ' KES';
+            const priceElement = document.querySelector(`#cart-item-${itemId} div:nth-child(2) p:nth-child(3)`);
+            if (priceElement) {
+                const price = parseFloat(priceElement.textContent.replace(' KES', ''));
+                const itemTotalElement = document.getElementById(`item-total-${itemId}`);
+                if (itemTotalElement) {
+                    itemTotalElement.textContent = (price * newQuantity).toFixed(2) + ' KES';
+                }
+            }
             
             document.getElementById('cart-total').textContent = data.total.toFixed(2) + ' KES';
             document.getElementById('cart-final-total').textContent = data.total.toFixed(2) + ' KES';

@@ -1,90 +1,90 @@
 # BookHub
 
-Une plateforme de vente de livres en ligne développée avec Django.
+An online bookstore platform built with Django.
 
-## Fonctionnalités
+## Features
 
-- **Gestion des utilisateurs** : Inscription, connexion, profils clients et administrateurs
-- **Catalogue de livres** : Navigation par catégories, recherche, détails des livres
-- **Panier d'achat** : Ajout/suppression d'articles, gestion des quantités
-- **Commandes** : Processus de commande complet avec suivi du statut
-- **Panel administrateur** : Gestion des livres, utilisateurs et commandes
+- **User Management**: Registration, login, customer and admin profiles
+- **Book Catalog**: Browse by categories, search, book details
+- **Shopping Cart**: Add/remove items, quantity management
+- **Orders**: Complete ordering process with status tracking
+- **Admin Panel**: Manage books, users and orders
 
-## Technologies utilisées
+## Technologies Used
 
-- **Backend** : Django 4.2.7
-- **Base de données** : SQLite
-- **Frontend** : HTML, CSS, JavaScript
-- **Images** : Pillow pour la gestion des images
+- **Backend**: Django 4.2.7
+- **Database**: SQLite
+- **Frontend**: HTML, CSS, JavaScript
+- **Images**: Pillow for image handling
 
 ## Installation
 
-1. Clonez le projet :
+1. Clone the project:
 ```bash
-git clone <url-du-repo>
+git clone <repo-url>
 cd bookHub
 ```
 
-2. Créez un environnement virtuel :
+2. Create a virtual environment:
 ```bash
 python -m venv venv
 venv\Scripts\activate  # Windows
 ```
 
-3. Installez les dépendances :
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Effectuez les migrations :
+4. Run migrations:
 ```bash
 python manage.py migrate
 ```
 
-5. Créez un superutilisateur :
+5. Create a superuser:
 ```bash
 python manage.py createsuperuser
 ```
 
-6. Lancez le serveur :
+6. Start the server:
 ```bash
 python manage.py runserver
 ```
 
-## Structure du projet
+## Project Structure
 
 ```
 bookHub/
-├── BookHub/          # Configuration Django
-├── core/             # Application principale
-│   ├── models.py     # Modèles (User, Book, Order, etc.)
-│   ├── views.py      # Vues
-│   ├── templates/    # Templates HTML
-│   └── static/       # Fichiers CSS
-├── media/            # Images uploadées
-└── manage.py         # Script de gestion Django
+├── BookHub/          # Django configuration
+├── core/             # Main application
+│   ├── models.py     # Models (User, Book, Order, etc.)
+│   ├── views.py      # Views
+│   ├── templates/    # HTML templates
+│   └── static/       # CSS files
+├── media/            # Uploaded images
+└── manage.py         # Django management script
 ```
 
-## Modèles principaux
+## Main Models
 
-- **User** : Utilisateurs avec rôles (client/admin)
-- **Book** : Livres avec auteur, catégorie, prix, stock
-- **Category** : Catégories de livres
-- **Author** : Auteurs des livres
-- **Cart/CartItem** : Panier d'achat
-- **Order/OrderItem** : Commandes et articles commandés
+- **User**: Users with roles (customer/admin)
+- **Book**: Books with author, category, price, stock
+- **Category**: Book categories
+- **Author**: Book authors
+- **Cart/CartItem**: Shopping cart
+- **Order/OrderItem**: Orders and order items
 
-## Utilisation
+## Usage
 
-1. Accédez à `http://127.0.0.1:8000/`
-2. Créez un compte ou connectez-vous
-3. Parcourez le catalogue de livres
-4. Ajoutez des livres au panier
-5. Passez commande
+1. Go to `http://127.0.0.1:8000/`
+2. Create an account or login
+3. Browse the book catalog
+4. Add books to cart
+5. Place your order
 
 ## Administration
 
-Accédez au panel admin à `/admin/` avec vos identifiants superutilisateur pour :
-- Gérer les livres et catégories
-- Voir les commandes
-- Administrer les utilisateurs
+Access the admin panel at `/admin/` with your superuser credentials to:
+- Manage books and categories
+- View orders
+- Administer users

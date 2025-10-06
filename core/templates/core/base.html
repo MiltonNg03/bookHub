@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/books.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+    <link rel="stylesheet" href="{% static 'css/cart.css' %}">
     <title>{% block title %}BookHub - Votre librairie en ligne{% endblock %}</title>
 
 </head>
@@ -22,6 +26,15 @@
             <p>Are you sure you want to logout?</p>
             <button onclick="logout()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; margin: 5px; border-radius: 4px; cursor: pointer;">Yes, Logout</button>
             <button onclick="closeModal()" style="background: #6c757d; color: white; border: none; padding: 8px 16px; margin: 5px; border-radius: 4px; cursor: pointer;">Cancel</button>
+        </div>
+    </div>
+    
+    <!-- Message Modal -->
+    <div id="globalMessageModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div style="background-color: white; margin: 15% auto; padding: 20px; border-radius: 8px; width: 300px; text-align: center;">
+            <h3 id="globalMessageTitle">Message</h3>
+            <p id="globalMessageText"></p>
+            <button onclick="closeGlobalMessageModal()" style="background-color: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">OK</button>
         </div>
     </div>
 
@@ -78,7 +91,7 @@
                         button.disabled = false;
                     }, 2000);
                 } else {
-                    alert(data.message);
+                    showGlobalMessage('Error', data.message);
                     button.innerHTML = originalText;
                     button.disabled = false;
                 }
@@ -100,6 +113,16 @@
         
         function logout() {
             window.location.href = '{% url "logout" %}';
+        }
+        
+        function showGlobalMessage(title, message) {
+            document.getElementById('globalMessageTitle').textContent = title;
+            document.getElementById('globalMessageText').textContent = message;
+            document.getElementById('globalMessageModal').style.display = 'block';
+        }
+        
+        function closeGlobalMessageModal() {
+            document.getElementById('globalMessageModal').style.display = 'none';
         }
     </script>
     

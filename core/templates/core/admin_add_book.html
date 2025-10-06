@@ -71,10 +71,10 @@
             </div>
             
             <div>
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Cover Image</label>
-                {{ form.cover_image }}
-                <div id="image-preview" style="margin-top: 1rem; text-align: center;">
-                    <img id="preview-img" src="" alt="Preview" style="max-width: 200px; max-height: 200px; display: none; border: 1px solid #ddd; border-radius: 0.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Cover Preview</label>
+                <div id="cover-preview" style="margin-top: 1rem; text-align: center;">
+                    <canvas id="preview-canvas" width="200" height="300" style="border: 1px solid #ddd; border-radius: 0.5rem; display: none;"></canvas>
+                    <p id="preview-text" style="color: #666; font-style: italic;">Select a category to see cover preview</p>
                 </div>
             </div>
             
@@ -90,20 +90,146 @@
 </div>
 
 <script>
-document.getElementById('id_cover_image').addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    const preview = document.getElementById('preview-img');
+const colorSchemes = {
+    'Literature': [139, 69, 19],
+    'Educational / School Books': [0, 100, 0],
+    'Science and Technology': [70, 130, 180],
+    'Human and Social Sciences': [128, 0, 128],
+    'Economics and Management': [184, 134, 11],
+    'Languages': [220, 20, 60],
+    'Personal Development': [255, 140, 0],
+    'Arts and Culture': [75, 0, 130],
+    'Religion and Spirituality': [25, 25, 112],
+    'Leisure and Practical Life': [34, 139, 34],
+    'Health / Well-being': [0, 128, 128],
+    'Sustainable Development / Ecology': [107, 142, 35],
+    'Biographies and Testimonies': [139, 0, 0],
+    'Law': [72, 61, 139],
+    'Methodology / Research': [105, 105, 105]
+};
+
+function updatePreview() {
+    const canvas = document.getElementById('preview-canvas');
+    const ctx = canvas.getContext('2d');
+    const category = document.getElementById('category-select').value;
+    const title = document.getElementById('id_title').value || 'Book Title';
+    const author = document.getElementById('id_author_name').value || 'Author Name';
+    const isbn = document.getElementById('id_isbn').value || '9780000000000';
     
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-    } else {
-        preview.style.display = 'none';
+    if (!category) {
+        canvas.style.display = 'none';
+        document.getElementById('preview-text').style.display = 'block';
+        return;
     }
-});
+    
+    canvas.style.display = 'block';
+    document.getElementById('preview-text').style.display = 'none';
+    
+    const color = colorSchemes[category] || [70, 130, 180];
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Background with texture
+    for (let y = 0; y < canvas.height; y++) {
+        for (let x = 0; x < canvas.width; x++) {
+            const noise = Math.floor(Math.random() * 30) - 15;
+            const r = Math.max(0, Math.min(255, color[0] + noise));
+            const g = Math.max(0, Math.min(255, color[1] + noise));
+            const b = Math.max(0, Math.min(255, color[2] + noise));
+            ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+            ctx.fillRect(x, y, 1, 1);
+        }
+    }
+    
+    // Borders
+    const borderColor = `rgb(${Math.max(0, color[0] - 40)}, ${Math.max(0, color[1] - 40)}, ${Math.max(0, color[2] - 40)})`;
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(7, 7, canvas.width - 14, canvas.height - 14);
+    ctx.lineWidth = 1;
+    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+    
+    // Title
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    const titleLines = title.match(/.{1,15}(\s|$)/g) || [title];
+    let titleY = 30;
+    titleLines.forEach(line => {
+        ctx.fillStyle = 'black';
+        ctx.fillText(line.trim(), canvas.width/2 + 1, titleY + 1);
+        ctx.fillStyle = 'white';
+        ctx.fillText(line.trim(), canvas.width/2, titleY);
+        titleY += 20;
+    });
+    
+    // Line
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(30, titleY + 10);
+    ctx.lineTo(canvas.width - 30, titleY + 10);
+    ctx.stroke();
+    
+    // Diamond
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const size = 20;
+    const patternColor = `rgb(${Math.min(255, color[0] + 30)}, ${Math.min(255, color[1] + 30)}, ${Math.min(255, color[2] + 30)})`;
+    ctx.fillStyle = patternColor;
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY - size);
+    ctx.lineTo(centerX + size, centerY);
+    ctx.lineTo(centerX, centerY + size);
+    ctx.lineTo(centerX - size, centerY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'white';
+    ctx.stroke();
+    
+    // Author
+    ctx.font = '12px Arial';
+    const authorLines = author.match(/.{1,20}(\s|$)/g) || [author];
+    let authorY = canvas.height - 50;
+    authorLines.forEach(line => {
+        ctx.fillStyle = 'black';
+        ctx.fillText(line.trim(), canvas.width/2 + 1, authorY + 1);
+        ctx.fillStyle = 'white';
+        ctx.fillText(line.trim(), canvas.width/2, authorY);
+        authorY += 15;
+    });
+    
+    // ISBN
+    ctx.font = '8px Arial';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ccc';
+    ctx.fillText(`ISBN: ${isbn.substring(0, 13)}`, canvas.width - 10, canvas.height - 10);
+}
+
+document.getElementById('category-select').addEventListener('change', updatePreview);
+document.getElementById('id_title').addEventListener('input', updatePreview);
+document.getElementById('id_author_name').addEventListener('input', updatePreview);
+document.getElementById('id_isbn').addEventListener('input', updatePreview);
+
+function resetForm() {
+    document.getElementById('id_title').value = '';
+    document.getElementById('id_author_name').value = '';
+    document.getElementById('category-select').value = '';
+    document.getElementById('id_isbn').value = '';
+    document.getElementById('id_description').value = '';
+    document.getElementById('id_price').value = '';
+    document.getElementById('id_stock_quantity').value = '';
+    
+    const canvas = document.getElementById('preview-canvas');
+    canvas.style.display = 'none';
+    document.getElementById('preview-text').style.display = 'block';
+    document.getElementById('preview-text').textContent = 'Select a category to see cover preview';
+}
+
+// Reset form if book was successfully created
+if (window.location.search.includes('success=1')) {
+    setTimeout(resetForm, 100);
+}
 </script>
 {% endblock %}

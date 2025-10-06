@@ -20,13 +20,21 @@
                 </label>
                 {{ field }}
                 {% if field.help_text %}
-<!--                  <div>{{ field.help_text }}</div>-->  
+                  <small style="color: #666; font-size: 0.8rem;">{{ field.help_text }}</small>  
                 {% endif %}
                 {% for error in field.errors %}
-                <div>{{ error }}</div>
+                <div style="color: red; font-size: 0.9rem;">{{ error }}</div>
                 {% endfor %}
             </div>
             {% endfor %}
+            
+            {% if form.non_field_errors %}
+            <div style="color: red; font-size: 0.9rem;">
+                {% for error in form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
             
             <div class="btn_submit">
                 <button type="submit">Register</button>
@@ -39,4 +47,100 @@
     </div>
 
 </div>
+
+<script>
+let validationTimeout;
+
+function validateField(field, url, callback) {
+    clearTimeout(validationTimeout);
+    validationTimeout = setTimeout(() => {
+        fetch(`${url}?${field}=${encodeURIComponent(document.getElementById(`id_${field}`).value)}`)
+            .then(response => response.json())
+            .then(data => callback(data))
+            .catch(error => console.error('Error:', error));
+    }, 500);
+}
+
+function showValidation(fieldId, isValid, message) {
+    let feedback = document.getElementById(`${fieldId}-feedback`);
+    if (!feedback) {
+        feedback = document.createElement('div');
+        feedback.id = `${fieldId}-feedback`;
+        feedback.style.fontSize = '0.8rem';
+        feedback.style.marginTop = '0.2rem';
+        document.getElementById(`id_${fieldId}`).parentNode.appendChild(feedback);
+    }
+    
+    if (message) {
+        feedback.textContent = message;
+        feedback.style.color = isValid ? 'green' : 'red';
+        feedback.style.display = 'block';
+    } else {
+        feedback.style.display = 'none';
+    }
+}
+
+function updatePasswordStrength(data) {
+    let strengthBar = document.getElementById('password-strength');
+    if (!strengthBar) {
+        strengthBar = document.createElement('div');
+        strengthBar.id = 'password-strength';
+        strengthBar.innerHTML = `
+            <div style="margin-top: 0.5rem;">
+                <div style="font-size: 0.8rem; margin-bottom: 0.2rem;">Password strength:</div>
+                <div style="width: 100%; height: 4px; background: #ddd; border-radius: 2px;">
+                    <div id="strength-fill" style="height: 100%; border-radius: 2px; transition: all 0.3s;"></div>
+                </div>
+                <div id="strength-messages" style="font-size: 0.7rem; margin-top: 0.2rem;"></div>
+            </div>
+        `;
+        document.getElementById('id_password1').parentNode.appendChild(strengthBar);
+    }
+    
+    const fill = document.getElementById('strength-fill');
+    const messages = document.getElementById('strength-messages');
+    const colors = ['#ff4444', '#ff8800', '#ffaa00', '#88cc00', '#44cc44'];
+    
+    fill.style.width = `${(data.strength / 4) * 100}%`;
+    fill.style.backgroundColor = colors[data.strength] || colors[0];
+    
+    if (data.messages && data.messages.length > 0) {
+        messages.textContent = 'Missing: ' + data.messages.join(', ');
+        messages.style.color = '#666';
+    } else {
+        messages.textContent = 'Strong password!';
+        messages.style.color = 'green';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const usernameField = document.getElementById('id_username');
+    const emailField = document.getElementById('id_email');
+    const passwordField = document.getElementById('id_password1');
+    
+    if (usernameField) {
+        usernameField.addEventListener('input', function() {
+            validateField('username', '/validate-username/', function(data) {
+                showValidation('username', data.valid, data.message);
+            });
+        });
+    }
+    
+    if (emailField) {
+        emailField.addEventListener('input', function() {
+            validateField('email', '/validate-email/', function(data) {
+                showValidation('email', data.valid, data.message);
+            });
+        });
+    }
+    
+    if (passwordField) {
+        passwordField.addEventListener('input', function() {
+            validateField('password', '/validate-password/', function(data) {
+                updatePasswordStrength(data);
+            });
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -5,64 +5,71 @@
 {% block content %}
     {% include 'core/includes/header.html' %}
 
-<div>
-    <div class="title">
-        <h2>Filtres</h2>
-        <div style="display: flex; gap: 1rem;">
-            <a href="{% url 'book_list' %}">Toutes les catégories</a>
-            {% for category in categories %}
-            <a href="{% url 'book_list' %}?category={{ category.id }}">{{ category.name }}</a>
-            {% endfor %}
+<main class="books-page">
+    <div class="container">
+        <!-- Header Section -->
+        <div class="page-header">
+            <h1>Découvrez nos livres</h1>
+            <p class="book-count" id="book-count">{{ books.count }} livre{{ books.count|pluralize }} disponible{{ books.count|pluralize }}</p>
         </div>
-        <div>
-            <input type="text" id="live-search" placeholder="Search" autocomplete="off">
-            <div id="search-results" style="display: none;"></div>
-        </div>        
-    </div>
-        
-    <div>
-        
-        <div>
-            <h2>Notre collection de livres</h2>
-            <span id="book-count">{{ books.count }} livre(s) trouvé(s)</span>
+
+        <!-- Search & Filters -->
+        <div class="search-filters">
+            <div class="search-box">
+                <input type="text" id="live-search" placeholder="Rechercher un livre, auteur..." autocomplete="off">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+            </div>
+            
+            <div class="category-filters">
+                <a href="{% url 'book_list' %}" class="filter-btn {% if not request.GET.category %}active{% endif %}">Tous</a>
+                {% for category in categories %}
+                <a href="{% url 'book_list' %}?category={{ category.id }}" 
+                   class="filter-btn {% if request.GET.category == category.id|stringformat:'s' %}active{% endif %}">
+                   {{ category.name }}
+                </a>
+                {% endfor %}
+            </div>
         </div>
-        
-        {% if request.GET.search %}
-        <div>
-            Résultats de recherche pour : "{{ request.GET.search }}"
-            <a href="{% url 'book_list' %}">Voir tous les livres</a>
-        </div>
-        {% endif %}
-        
-        <div class="sous_section_two">
+
+        <!-- Books Grid -->
+        <div class="books-grid" id="books-grid">
             {% for book in books %}
-            <div class="book_list" style="height: 75vh;">
-                {% if book.cover_image %}
-                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
-                {% else %}
-                <div>[Book Image]</div>
-                {% endif %}
-                <div style="width: 90%; padding: 1rem; text-align: center;">
-                    <h5 style="margin-bottom: 0.5rem; font-weight: bold; font-size: 1.3rem;">{{ book.title }}</h5>
-                    <p style="font-weight: bold; color: cadetblue; font-size: 1.1rem;">{{ book.price }} KES</p>
-                    <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; width: 100%;">
-                        <a href="{% url 'book_detail' book.id %}" style="background-color: cadetblue; color: white; padding: 0.4rem 0.8rem; border-radius: 0.3rem; text-decoration: none; font-size: 0.9rem;">View Details</a>
+            <div class="book-card">
+                <div class="book-cover">
+                    {% if book.cover_image %}
+                    <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" loading="lazy">
+                    {% else %}
+                    <div class="no-cover">📚</div>
+                    {% endif %}
+                </div>
+                
+                <div class="book-info">
+                    <h3 class="book-title">{{ book.title }}</h3>
+                    <p class="book-author">{{ book.author.name }}</p>
+                    <p class="book-price">{{ book.price }} KES</p>
+                    
+                    <div class="book-actions">
+                        <a href="{% url 'book_detail' book.id %}" class="btn btn-outline">Détails</a>
                         {% if user.is_authenticated %}
-                        <button onclick="addToCart({{ book.id }}, this)" style="background-color: #28a745; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 0.3rem; cursor: pointer; font-size: 0.9rem;">Add to Cart</button>
+                        <button onclick="addToCart({{ book.id }}, this)" class="btn btn-primary">Ajouter</button>
                         {% endif %}
                     </div>
                 </div>
             </div>
             {% empty %}
-            <div>
-                <h4>No books found</h4>
-                <p>Try modifying your search criteria.</p>
-                <a href="{% url 'book_list' %}">View all books</a>
+            <div class="empty-state">
+                <div class="empty-icon">📖</div>
+                <h3>Aucun livre trouvé</h3>
+                <p>Essayez de modifier vos critères de recherche</p>
+                <a href="{% url 'book_list' %}" class="btn btn-primary">Voir tous les livres</a>
             </div>
             {% endfor %}
         </div>
     </div>
-</div>
+</main>
 {% endblock %}
 
 {% block extra_js %}
@@ -70,83 +77,69 @@
 <script>
 let searchTimeout;
 const searchInput = document.getElementById('live-search');
-const searchResults = document.getElementById('search-results');
 let originalContent = '';
 
-// Sauvegarder le contenu original au chargement
 document.addEventListener('DOMContentLoaded', function() {
-    originalContent = document.querySelector('.sous_section_two').innerHTML;
+    originalContent = document.querySelector('.books-grid').innerHTML;
 });
 
 searchInput.addEventListener('input', function() {
     const query = this.value.trim();
-    
     clearTimeout(searchTimeout);
     
     if (query.length === 0) {
-        // Restaurer le contenu original
-        document.querySelector('.sous_section_two').innerHTML = originalContent;
-        document.getElementById('book-count').textContent = '{{ books.count }} livre(s) trouvé(s)';
+        document.querySelector('.books-grid').innerHTML = originalContent;
+        document.getElementById('book-count').textContent = '{{ books.count }} livre{{ books.count|pluralize }} disponible{{ books.count|pluralize }}';
         return;
     }
     
     searchTimeout = setTimeout(() => {
         fetch(`/live-search/?q=${encodeURIComponent(query)}`)
             .then(response => response.json())
-            .then(data => {
-                displaySearchResults(data.books);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+            .then(data => displaySearchResults(data.books))
+            .catch(error => console.error('Error:', error));
     }, 300);
 });
 
 function displaySearchResults(books) {
-    const bookContainer = document.querySelector('.sous_section_two');
+    const bookContainer = document.querySelector('.books-grid');
     const bookCountElement = document.getElementById('book-count');
     
     if (books.length === 0) {
-        bookContainer.innerHTML = '<div style="text-align: center; width: 100%;"><h4>No books found</h4><p>Try modifying your search criteria.</p></div>';
-        bookCountElement.textContent = '0 livre(s) trouvé(s)';
+        bookContainer.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <h3>Aucun résultat</h3>
+                <p>Aucun livre ne correspond à votre recherche</p>
+            </div>`;
+        bookCountElement.textContent = '0 livre disponible';
         return;
     }
     
     let html = '';
     books.forEach(book => {
         html += `
-            <div class="book_list" style="height: 75vh;">
-                ${book.cover_image ? 
-                    `<img src="${book.cover_image}" alt="${book.title}">` :
-                    '<div>[Book Image]</div>'
-                }
-                <div style="width: 90%;">
-                    <h5>${book.title}</h5>
-                    <p><strong>Author:</strong> ${book.author}</p>
-                    <p>${book.price} KES</p>
-                    <div>
-                        <a href="/books/${book.id}/">View Details</a>
-                        <button onclick="addToCart(${book.id}, this)">Add to Cart</button>
+            <div class="book-card">
+                <div class="book-cover">
+                    ${book.cover_image ? 
+                        `<img src="${book.cover_image}" alt="${book.title}" loading="lazy">` :
+                        '<div class="no-cover">📚</div>'
+                    }
+                </div>
+                <div class="book-info">
+                    <h3 class="book-title">${book.title}</h3>
+                    <p class="book-author">${book.author}</p>
+                    <p class="book-price">${book.price} KES</p>
+                    <div class="book-actions">
+                        <a href="/books/${book.id}/" class="btn btn-outline">Détails</a>
+                        <button onclick="addToCart(${book.id}, this)" class="btn btn-primary">Ajouter</button>
                     </div>
                 </div>
-            </div>
-        `;
+            </div>`;
     });
     
     bookContainer.innerHTML = html;
-    bookCountElement.textContent = `${books.length} livre(s) trouvé(s)`;
+    bookCountElement.textContent = `${books.length} livre${books.length > 1 ? 's' : ''} trouvé${books.length > 1 ? 's' : ''}`;
 }
-
-document.addEventListener('click', function(event) {
-    if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
-        searchResults.style.display = 'none';
-    }
-});
-
-searchInput.addEventListener('focus', function() {
-    if (this.value.trim().length > 0 && searchResults.innerHTML.trim() !== '') {
-        searchResults.style.display = 'block';
-    }
-});
 </script>
 {% endblock %}

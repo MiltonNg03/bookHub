@@ -1,0 +1,146 @@
+/* Admin Panel Styles */
+.admin-panel {
+    padding-top: 10vh;
+    min-height: 100vh;
+    background: #f8f9fa;
+}
+
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.admin-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.admin-header h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-weight: 300;
+}
+
+.admin-header p {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #5f9ea0;
+    margin: 1rem 0;
+}
+
+.stat-label {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.stat-link {
+    display: inline-block;
+    background: #5f9ea0;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.stat-link:hover {
+    background: #4a7c7e;
+    transform: translateY(-1px);
+}
+
+/* Quick Actions */
+.quick-actions {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.quick-actions h3 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.actions-grid {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #5f9ea0;
+    color: #5f9ea0;
+    background: transparent;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background: #5f9ea0;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 1rem;
+    }
+    
+    .admin-header h1 {
+        font-size: 2rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .actions-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .action-btn {
+        width: 200px;
+    }
+}

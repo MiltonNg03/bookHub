@@ -25,4 +25,10 @@ urlpatterns = [
     path('admin-panel/books/add/', views.admin_add_book, name='admin_add_book'),
     path('admin-panel/orders/', views.admin_orders, name='admin_orders'),
     path('admin-panel/users/delete/<int:user_id>/', views.admin_delete_user, name='admin_delete_user'),
+    path('admin-search-books/', views.admin_search_books, name='admin_search_books'),
+    path('admin-update-book-price/<int:book_id>/', views.admin_update_book_price, name='admin_update_book_price'),
+    # Validation endpoints
+    path('validate-username/', views.validate_username, name='validate_username'),
+    path('validate-email/', views.validate_email, name='validate_email'),
+    path('validate-password/', views.validate_password, name='validate_password'),
 ]

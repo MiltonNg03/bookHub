@@ -13,60 +13,62 @@
 </section>
 
 <section class="section_two">
+    <div class="container">
+        <div class="page-header">
+            <h2>Livres en vedette</h2>
+            <p>Découvrez nos meilleures sélections</p>
+        </div>
 
-    <div class="title">
-        <h2>Featured Books</h2>
-        <p>Discover our best selections</p>
-    </div>
-
-
-    <div class="sous_section_two">
-        {% for book in books %}
-        <div class="book_list">
-            {% if book.cover_image %}
-            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
-            {% else %}
-            <div>
-                [Book Image]
-            </div>
-            {% endif %}
-            <div style="width: 90%;">
-                <h5>{{ book.title }}</h5>
-                <p>{{ book.author.name }}</p>
-                <div>
-                    <p>{{ book.price }} KES</p>
-                    <div>
-                        <a href="{% url 'book_detail' book.id %}">View Details</a>
+        <div class="books-grid">
+            {% for book in books %}
+            <div class="book-card">
+                <div class="book-cover">
+                    {% if book.cover_image %}
+                    <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" loading="lazy">
+                    {% else %}
+                    <div class="no-cover">📚</div>
+                    {% endif %}
+                </div>
+                
+                <div class="book-info">
+                    <h3 class="book-title">{{ book.title }}</h3>
+                    <p class="book-author">{{ book.author.name }}</p>
+                    <p class="book-price">{{ book.price }} KES</p>
+                    
+                    <div class="book-actions">
+                        <a href="{% url 'book_detail' book.id %}" class="btn btn-outline">Détails</a>
                         {% if user.is_authenticated %}
-                        <button onclick="addToCart({{ book.id }}, this)">Add to Cart</button>
+                        <button onclick="addToCart({{ book.id }}, this)" class="btn btn-primary">Ajouter</button>
                         {% endif %}
                     </div>
                 </div>
             </div>
+            {% empty %}
+            <div class="empty-state">
+                <div class="empty-icon">📖</div>
+                <h3>Aucun livre disponible</h3>
+                <p>Revenez bientôt pour découvrir nos nouveautés</p>
+            </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div>
-            <p>No books available at the moment.</p>
-        </div>
-        {% endfor %}
     </div>
 </section>
 
 <section class="section_three">
-
-    <div class="title">
-        <h2>Popular Categories</h2>
-    </div>
-
-        
-    <div class="popular_books">
-        {% for category in categories %}
-        <div>
-            <h5>{{ category.name }}</h5>
-            <p>{{ category.description|truncatewords:10 }}</p>
-            <a href="{% url 'book_list' %}?category={{ category.id }}">Explore</a>
+    <div class="container">
+        <div class="page-header">
+            <h2>Popular Categories</h2>
         </div>
-        {% endfor %}
+        
+        <div class="categories-grid">
+            {% for category in categories %}
+            <div class="category-card">
+                <h3>{{ category.name }}</h3>
+                <p>{{ category.description|truncatewords:10 }}</p>
+                <a href="{% url 'book_list' %}?category={{ category.id }}" class="btn btn-primary">Explorer</a>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </section>
 {% endblock %}

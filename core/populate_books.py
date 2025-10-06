@@ -4,6 +4,8 @@ import django
 import requests
 from django.core.files.base import ContentFile
 from datetime import datetime
+from PIL import Image, ImageDraw, ImageFont
+import textwrap
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
@@ -15,105 +17,84 @@ from core.models import Category, Author, Book
 import random
 
 def search_books_by_category(category_name, max_results=10):
-    base_url = "https://www.googleapis.com/books/v1/volumes"
-    books_data = []
-    search_terms = {
-        'Fiction': 'fiction',
-        'Science Fiction': 'science fiction',
-        'Fantasy': 'fantasy',
-        'Mystery': 'mystery',
-        'Biography': 'biography',
-        'Self Help': 'self help'
-    }
-    
-    search_query = search_terms.get(category_name, 'books')
-    
-    params = {
-        'q': search_query,
-        'maxResults': max_results,
-        'printType': 'books'
-    }
-    
-    try:
-        response = requests.get(base_url, params=params)
-        if response.status_code == 200:
-            data = response.json()
-            
-            for item in data.get('items', []):
-                volume_info = item.get('volumeInfo', {})
-                
-                if not volume_info.get('title') or not volume_info.get('authors'):
-                    continue
-                
-                thumbnail = volume_info.get('imageLinks', {}).get('thumbnail')
-                if not thumbnail:
-                    thumbnail = volume_info.get('imageLinks', {}).get('smallThumbnail')
-                
-                book_data = {
-                    'title': volume_info.get('title', 'Unknown Title'),
-                    'authors': volume_info.get('authors', ['Unknown Author']),
-                    'description': volume_info.get('description', f'An excellent {category_name.lower()} book.'),
-                    'isbn': None,
-                    'thumbnail': thumbnail,
-                    'page_count': volume_info.get('pageCount', random.randint(150, 400)),
-                    'published_date': volume_info.get('publishedDate', '2020')
-                }
-                
-                for identifier in volume_info.get('industryIdentifiers', []):
-                    if identifier.get('type') in ['ISBN_13', 'ISBN_10']:
-                        book_data['isbn'] = identifier.get('identifier')
-                        break
-                
-                books_data.append(book_data)
-    
-    except Exception as e:
-        print(f"Error searching for {category_name}: {e}")
-    
-    return books_data
+    return []
 
 def create_fallback_books(category_name):
     fallback_data = {
-        'Fiction': [
-            {'title': 'The Little Prince', 'author': 'Antoine de Saint-Exupéry', 'desc': 'A poetic and philosophical tale.', 'img': 'https://covers.openlibrary.org/b/isbn/9782070408504-M.jpg'},
-            {'title': 'The Stranger', 'author': 'Albert Camus', 'desc': 'A major existentialist novel.', 'img': 'https://covers.openlibrary.org/b/isbn/9782070360024-M.jpg'},
-            {'title': 'Madame Bovary', 'author': 'Gustave Flaubert', 'desc': 'A classic of French literature.', 'img': 'https://covers.openlibrary.org/b/isbn/9782070413119-M.jpg'},
-            {'title': 'Les Misérables', 'author': 'Victor Hugo', 'desc': 'A social epic of 19th century France.', 'img': 'https://covers.openlibrary.org/b/isbn/9782070409228-M.jpg'},
-            {'title': 'The Red and the Black', 'author': 'Stendhal', 'desc': 'An essential coming-of-age novel.', 'img': 'https://covers.openlibrary.org/b/isbn/9782070413080-M.jpg'}
+        'Literature': [
+            {'title': 'To Kill a Mockingbird', 'author': 'Harper Lee', 'desc': 'A classic American novel.'},
+            {'title': '1984', 'author': 'George Orwell', 'desc': 'Dystopian social science fiction.'},
+            {'title': 'Pride and Prejudice', 'author': 'Jane Austen', 'desc': 'Romantic fiction classic.'}
         ],
-        'Science Fiction': [
-            {'title': 'Dune', 'author': 'Frank Herbert', 'desc': 'A legendary space epic.', 'img': 'https://covers.openlibrary.org/b/isbn/9780441172719-M.jpg'},
-            {'title': '1984', 'author': 'George Orwell', 'desc': 'A prophetic dystopia.', 'img': 'https://covers.openlibrary.org/b/isbn/9780451524935-M.jpg'},
-            {'title': 'Foundation', 'author': 'Isaac Asimov', 'desc': 'The Foundation cycle.', 'img': 'https://covers.openlibrary.org/b/isbn/9780553293357-M.jpg'},
-            {'title': 'Neuromancer', 'author': 'William Gibson', 'desc': 'The founding novel of cyberpunk.', 'img': 'https://covers.openlibrary.org/b/isbn/9780441569595-M.jpg'},
-            {'title': 'The Time Machine', 'author': 'H.G. Wells', 'desc': 'A science fiction classic.', 'img': 'https://covers.openlibrary.org/b/isbn/9780486284729-M.jpg'}
+        'Educational / School Books': [
+            {'title': 'Introduction to Algorithms', 'author': 'Thomas Cormen', 'desc': 'Comprehensive algorithms textbook.'},
+            {'title': 'Calculus', 'author': 'James Stewart', 'desc': 'Mathematical analysis textbook.'},
+            {'title': 'Physics Principles', 'author': 'David Halliday', 'desc': 'Fundamental physics concepts.'}
         ],
-        'Fantasy': [
-            {'title': 'The Lord of the Rings', 'author': 'J.R.R. Tolkien', 'desc': 'The ultimate fantasy epic.', 'img': 'https://covers.openlibrary.org/b/isbn/9780547928227-M.jpg'},
-            {'title': 'Harry Potter and the Sorcerer\'s Stone', 'author': 'J.K. Rowling', 'desc': 'The beginning of the magical saga.', 'img': 'https://covers.openlibrary.org/b/isbn/9780439708180-M.jpg'},
-            {'title': 'A Game of Thrones', 'author': 'George R.R. Martin', 'desc': 'An epic fantasy saga.', 'img': 'https://covers.openlibrary.org/b/isbn/9780553103540-M.jpg'},
-            {'title': 'Eragon', 'author': 'Christopher Paolini', 'desc': 'The story of a Dragon Rider.', 'img': 'https://covers.openlibrary.org/b/isbn/9780375826696-M.jpg'},
-            {'title': 'The Chronicles of Narnia', 'author': 'C.S. Lewis', 'desc': 'A magical world to discover.', 'img': 'https://covers.openlibrary.org/b/isbn/9780064404990-M.jpg'}
+        'Science and Technology': [
+            {'title': 'A Brief History of Time', 'author': 'Stephen Hawking', 'desc': 'Cosmology for general readers.'},
+            {'title': 'The Innovators', 'author': 'Walter Isaacson', 'desc': 'Digital revolution history.'},
+            {'title': 'Sapiens', 'author': 'Yuval Noah Harari', 'desc': 'Brief history of humankind.'}
         ],
-        'Mystery': [
-            {'title': 'Murder on the Orient Express', 'author': 'Agatha Christie', 'desc': 'A Hercule Poirot investigation.', 'img': 'https://covers.openlibrary.org/b/isbn/9780062693662-M.jpg'},
-            {'title': 'Maigret Sets a Trap', 'author': 'Georges Simenon', 'desc': 'An Inspector Maigret investigation.', 'img': 'https://covers.openlibrary.org/b/isbn/9782253142225-M.jpg'},
-            {'title': 'The Maltese Falcon', 'author': 'Dashiell Hammett', 'desc': 'A noir classic.', 'img': 'https://covers.openlibrary.org/b/isbn/9780679722649-M.jpg'},
-            {'title': 'The Murder at the Vicarage', 'author': 'Agatha Christie', 'desc': 'Miss Marple\'s first investigation.', 'img': 'https://covers.openlibrary.org/b/isbn/9780062073570-M.jpg'},
-            {'title': 'The Mousetrap', 'author': 'Agatha Christie', 'desc': 'A mysterious locked-room mystery.', 'img': 'https://covers.openlibrary.org/b/isbn/9780573010101-M.jpg'}
+        'Human and Social Sciences': [
+            {'title': 'Thinking, Fast and Slow', 'author': 'Daniel Kahneman', 'desc': 'Behavioral psychology insights.'},
+            {'title': 'The Social Animal', 'author': 'David Brooks', 'desc': 'Human nature and society.'},
+            {'title': 'Guns, Germs, and Steel', 'author': 'Jared Diamond', 'desc': 'Societal development factors.'}
         ],
-        'Biography': [
-            {'title': 'Steve Jobs', 'author': 'Walter Isaacson', 'desc': 'The biography of Apple\'s founder.', 'img': 'https://covers.openlibrary.org/b/isbn/9781451648539-M.jpg'},
-            {'title': 'Gandhi', 'author': 'Louis Fischer', 'desc': 'The life of Mahatma Gandhi.', 'img': 'https://covers.openlibrary.org/b/isbn/9780451627742-M.jpg'},
-            {'title': 'Einstein', 'author': 'Walter Isaacson', 'desc': 'The life of the physics genius.', 'img': 'https://covers.openlibrary.org/b/isbn/9780743264747-M.jpg'},
-            {'title': 'Churchill', 'author': 'Andrew Roberts', 'desc': 'Biography of the British Prime Minister.', 'img': 'https://covers.openlibrary.org/b/isbn/9780670026203-M.jpg'},
-            {'title': 'Marie Curie', 'author': 'Ève Curie', 'desc': 'The life of the first female Nobel laureate.', 'img': 'https://covers.openlibrary.org/b/isbn/9780306810381-M.jpg'}
+        'Economics and Management': [
+            {'title': 'Good to Great', 'author': 'Jim Collins', 'desc': 'What makes companies excel.'},
+            {'title': 'The Lean Startup', 'author': 'Eric Ries', 'desc': 'Building successful businesses.'},
+            {'title': 'Freakonomics', 'author': 'Steven Levitt', 'desc': 'Hidden side of everything.'}
         ],
-        'Self Help': [
-            {'title': 'The 7 Habits of Highly Effective People', 'author': 'Stephen Covey', 'desc': 'Guide to personal effectiveness.', 'img': 'https://covers.openlibrary.org/b/isbn/9781982137274-M.jpg'},
-            {'title': 'How to Win Friends and Influence People', 'author': 'Dale Carnegie', 'desc': 'The art of human relations.', 'img': 'https://covers.openlibrary.org/b/isbn/9780671027032-M.jpg'},
-            {'title': 'Think and Grow Rich', 'author': 'Napoleon Hill', 'desc': 'Keys to financial success.', 'img': 'https://covers.openlibrary.org/b/isbn/9781585424337-M.jpg'},
-            {'title': 'The Power of Now', 'author': 'Eckhart Tolle', 'desc': 'Spiritual guide for transformation.', 'img': 'https://covers.openlibrary.org/b/isbn/9781577314806-M.jpg'},
-            {'title': 'Rich Dad Poor Dad', 'author': 'Robert Kiyosaki', 'desc': 'Financial education for everyone.', 'img': 'https://covers.openlibrary.org/b/isbn/9781612680194-M.jpg'}
+        'Languages': [
+            {'title': 'English Grammar in Use', 'author': 'Raymond Murphy', 'desc': 'Essential English grammar.'},
+            {'title': 'French for Beginners', 'author': 'Marie Dubois', 'desc': 'Learn French basics.'},
+            {'title': 'Spanish Vocabulary', 'author': 'Carlos Martinez', 'desc': 'Essential Spanish words.'}
+        ],
+        'Personal Development': [
+            {'title': 'The 7 Habits of Highly Effective People', 'author': 'Stephen Covey', 'desc': 'Guide to personal effectiveness.'},
+            {'title': 'Atomic Habits', 'author': 'James Clear', 'desc': 'Building good habits.'},
+            {'title': 'Mindset', 'author': 'Carol Dweck', 'desc': 'The psychology of success.'}
+        ],
+        'Arts and Culture': [
+            {'title': 'The Story of Art', 'author': 'Ernst Gombrich', 'desc': 'Comprehensive art history.'},
+            {'title': 'Ways of Seeing', 'author': 'John Berger', 'desc': 'Art criticism and theory.'},
+            {'title': 'The Power of Music', 'author': 'Elena Mannes', 'desc': 'Music and the brain.'}
+        ],
+        'Religion and Spirituality': [
+            {'title': 'The Power of Now', 'author': 'Eckhart Tolle', 'desc': 'Spiritual awakening guide.'},
+            {'title': 'Man\'s Search for Meaning', 'author': 'Viktor Frankl', 'desc': 'Finding purpose in life.'},
+            {'title': 'The Alchemist', 'author': 'Paulo Coelho', 'desc': 'Spiritual journey novel.'}
+        ],
+        'Leisure and Practical Life': [
+            {'title': 'The Joy of Cooking', 'author': 'Irma Rombauer', 'desc': 'Classic cookbook.'},
+            {'title': 'Home Improvement Guide', 'author': 'Bob Vila', 'desc': 'DIY home projects.'},
+            {'title': 'Gardening Basics', 'author': 'Sarah Green', 'desc': 'Essential gardening tips.'}
+        ],
+        'Health / Well-being': [
+            {'title': 'The Blue Zones', 'author': 'Dan Buettner', 'desc': 'Secrets of longevity.'},
+            {'title': 'Why We Sleep', 'author': 'Matthew Walker', 'desc': 'The power of sleep.'},
+            {'title': 'Mindfulness', 'author': 'Ellen Langer', 'desc': 'The psychology of possibility.'}
+        ],
+        'Sustainable Development / Ecology': [
+            {'title': 'Silent Spring', 'author': 'Rachel Carson', 'desc': 'Environmental conservation classic.'},
+            {'title': 'The Sixth Extinction', 'author': 'Elizabeth Kolbert', 'desc': 'Mass extinction events.'},
+            {'title': 'Cradle to Cradle', 'author': 'Michael Braungart', 'desc': 'Sustainable design principles.'}
+        ],
+        'Biographies and Testimonies': [
+            {'title': 'Steve Jobs', 'author': 'Walter Isaacson', 'desc': 'The biography of Apple\'s founder.'},
+            {'title': 'Becoming', 'author': 'Michelle Obama', 'desc': 'Former First Lady\'s memoir.'},
+            {'title': 'Long Walk to Freedom', 'author': 'Nelson Mandela', 'desc': 'Autobiography of the freedom fighter.'}
+        ],
+        'Law': [
+            {'title': 'Constitutional Law', 'author': 'Geoffrey Stone', 'desc': 'Fundamental legal principles.'},
+            {'title': 'Criminal Justice', 'author': 'Frank Schmalleger', 'desc': 'Criminal law overview.'},
+            {'title': 'Contract Law', 'author': 'Steven Burton', 'desc': 'Legal agreements guide.'}
+        ],
+        'Methodology / Research': [
+            {'title': 'Research Methods', 'author': 'John Creswell', 'desc': 'Qualitative and quantitative research.'},
+            {'title': 'The Craft of Research', 'author': 'Wayne Booth', 'desc': 'Academic writing guide.'},
+            {'title': 'Statistics for Researchers', 'author': 'David Moore', 'desc': 'Statistical analysis methods.'}
         ]
     }
     
@@ -124,64 +105,128 @@ def create_fallback_books(category_name):
             'authors': [book_info['author']],
             'description': book_info['desc'],
             'isbn': None,
-            'thumbnail': book_info['img'],
+            'thumbnail': None,
             'page_count': random.randint(200, 400),
             'published_date': '2020'
         })
     
     return books_data
 
-def download_image(url):
-    if not url:
-        return None
+def create_book_cover(title, author, category_name, isbn):
+    color_schemes = {
+        'Literature': (139, 69, 19),
+        'Educational / School Books': (0, 100, 0),
+        'Science and Technology': (70, 130, 180),
+        'Human and Social Sciences': (128, 0, 128),
+        'Economics and Management': (184, 134, 11),
+        'Languages': (220, 20, 60),
+        'Personal Development': (255, 140, 0),
+        'Arts and Culture': (75, 0, 130),
+        'Religion and Spirituality': (25, 25, 112),
+        'Leisure and Practical Life': (34, 139, 34),
+        'Health / Well-being': (0, 128, 128),
+        'Sustainable Development / Ecology': (107, 142, 35),
+        'Biographies and Testimonies': (139, 0, 0),
+        'Law': (72, 61, 139),
+        'Methodology / Research': (105, 105, 105)
+    }
+    
+    base_color = color_schemes.get(category_name, (70, 130, 180))
+    width, height = 300, 450
+    
+    img = Image.new('RGB', (width, height), base_color)
+    draw = ImageDraw.Draw(img)
+    
+    for y in range(height):
+        for x in range(width):
+            noise = random.randint(-15, 15)
+            r = max(0, min(255, base_color[0] + noise))
+            g = max(0, min(255, base_color[1] + noise))
+            b = max(0, min(255, base_color[2] + noise))
+            img.putpixel((x, y), (r, g, b))
+    
+    draw = ImageDraw.Draw(img)
+    
+    border_color = tuple(max(0, c - 40) for c in base_color)
+    draw.rectangle([10, 10, width-10, height-10], outline=border_color, width=3)
+    draw.rectangle([15, 15, width-15, height-15], outline=border_color, width=1)
     
     try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1'
-        }
-        print(f"Downloading image: {url}")
-        response = requests.get(url, timeout=20, headers=headers, stream=True)
-        if response.status_code == 200 and len(response.content) > 500:
-            print(f"Image downloaded successfully ({len(response.content)} bytes)")
-            return ContentFile(response.content)
-        else:
-            print(f"Download failed: status {response.status_code}, size {len(response.content)}")
-    except Exception as e:
-        print(f"Error downloading image {url}: {e}")
+        title_font = ImageFont.truetype("arial.ttf", 24)
+        author_font = ImageFont.truetype("arial.ttf", 16)
+        small_font = ImageFont.truetype("arial.ttf", 12)
+    except:
+        title_font = ImageFont.load_default()
+        author_font = ImageFont.load_default()
+        small_font = ImageFont.load_default()
     
-    return None
+    title_area_y = 40
+    title_lines = textwrap.wrap(title, width=20)
+    
+    for line in title_lines:
+        bbox = draw.textbbox((0, 0), line, font=title_font)
+        text_width = bbox[2] - bbox[0]
+        x = (width - text_width) // 2
+        
+        draw.text((x + 1, title_area_y + 1), line, fill=(0, 0, 0), font=title_font)
+        draw.text((x, title_area_y), line, fill=(255, 255, 255), font=title_font)
+        title_area_y += 30
+    
+    line_y = title_area_y + 20
+    draw.line([(50, line_y), (width-50, line_y)], fill=(255, 255, 255), width=2)
+    
+    center_y = height // 2
+    pattern_color = tuple(min(255, c + 30) for c in base_color)
+    
+    diamond_size = 40
+    center_x = width // 2
+    diamond_points = [
+        (center_x, center_y - diamond_size),
+        (center_x + diamond_size, center_y),
+        (center_x, center_y + diamond_size),
+        (center_x - diamond_size, center_y)
+    ]
+    draw.polygon(diamond_points, fill=pattern_color, outline=(255, 255, 255), width=2)
+    
+    author_y = height - 80
+    author_lines = textwrap.wrap(author, width=25)
+    
+    for line in author_lines:
+        bbox = draw.textbbox((0, 0), line, font=author_font)
+        text_width = bbox[2] - bbox[0]
+        x = (width - text_width) // 2
+        
+        draw.text((x + 1, author_y + 1), line, fill=(0, 0, 0), font=author_font)
+        draw.text((x, author_y), line, fill=(255, 255, 255), font=author_font)
+        author_y += 20
+    
+    isbn_text = f"ISBN: {isbn[:13]}"
+    draw.text((width - 120, height - 25), isbn_text, fill=(200, 200, 200), font=small_font)
+    
+    filename = f"{isbn}_{category_name.replace(' ', '_').replace('/', '_')}.jpg"
+    cover_path = os.path.join(project_root, 'media', 'book_covers', filename)
+    os.makedirs(os.path.dirname(cover_path), exist_ok=True)
+    img.save(cover_path, 'JPEG', quality=95)
+    
+    return f"book_covers/{filename}"
 
 def create_categories():
     categories_data = [
-        {
-            'name': 'Fiction',
-            'description': 'Narrative prose works of fiction'
-        },
-        {
-            'name': 'Science Fiction',
-            'description': 'Books exploring scientific concepts and futures'
-        },
-        {
-            'name': 'Fantasy',
-            'description': 'Works incorporating magical and supernatural elements'
-        },
-        {
-            'name': 'Mystery',
-            'description': 'Novels featuring criminal investigations'
-        },
-        {
-            'name': 'Biography',
-            'description': 'Stories of real people\'s lives'
-        },
-        {
-            'name': 'Self Help',
-            'description': 'Books to improve personal and professional life'
-        }
+        {'name': 'Literature', 'description': 'Classic and contemporary literary works'},
+        {'name': 'Educational / School Books', 'description': 'Textbooks and educational materials'},
+        {'name': 'Science and Technology', 'description': 'Scientific research and technological advances'},
+        {'name': 'Human and Social Sciences', 'description': 'Psychology, sociology, anthropology'},
+        {'name': 'Economics and Management', 'description': 'Business, finance, and management'},
+        {'name': 'Languages', 'description': 'Language learning and linguistics'},
+        {'name': 'Personal Development', 'description': 'Self-improvement and life skills'},
+        {'name': 'Arts and Culture', 'description': 'Art, music, theater, and cultural studies'},
+        {'name': 'Religion and Spirituality', 'description': 'Religious texts and spiritual guidance'},
+        {'name': 'Leisure and Practical Life', 'description': 'Hobbies, crafts, and practical guides'},
+        {'name': 'Health / Well-being', 'description': 'Health, fitness, and wellness'},
+        {'name': 'Sustainable Development / Ecology', 'description': 'Environmental and sustainability topics'},
+        {'name': 'Biographies and Testimonies', 'description': 'Life stories and personal accounts'},
+        {'name': 'Law', 'description': 'Legal texts and jurisprudence'},
+        {'name': 'Methodology / Research', 'description': 'Research methods and academic writing'}
     ]
     
     categories = {}
@@ -213,14 +258,9 @@ def populate_database():
     all_books_created = 0
     
     for category_name, category_obj in categories.items():
-        print(f"\nSearching books for category: {category_name}")
+        print(f"\nCreating books for category: {category_name}")
         
-        books_data = search_books_by_category(category_name, max_results=8)
-        
-        if not books_data:
-            print(f"API returns nothing for {category_name}, creating fictional books...")
-            books_data = create_fallback_books(category_name)
-            
+        books_data = create_fallback_books(category_name)
         books_created = 0
         author_names = set()
         
@@ -241,43 +281,32 @@ def populate_database():
                 if not author:
                     continue
                 
-                isbn = book_data['isbn']
-                if not isbn:
-                    isbn = f"9{random.randint(100000000000, 999999999999)}"
-                
+                isbn = f"9{random.randint(100000000000, 999999999999)}"
                 price = round(random.uniform(800, 3500), 2)
                 stock_quantity = random.randint(5, 50)
+                
                 book = Book(
                     title=book_data['title'][:200],
                     author=author,
                     category=category_obj,
                     isbn=isbn[:13],
-                    description=book_data['description'][:1000] if book_data['description'] else "Description not available.",
+                    description=book_data['description'][:1000],
                     price=price,
                     stock_quantity=stock_quantity
                 )
                 
-                image_saved = False
-                if book_data['thumbnail']:
-                    thumbnail_url = book_data['thumbnail'].replace('http://', 'https://')
-                    image_file = download_image(thumbnail_url)
-                    if image_file:
-                        filename = f"{isbn}_{category_name.replace(' ', '_').replace('-', '_')}.jpg"
-                        book.cover_image.save(filename, image_file, save=False)
-                        image_saved = True
+                cover_path = create_book_cover(book_data['title'], author_name, category_name, isbn)
+                if cover_path:
+                    book.cover_image = cover_path
                 
                 book.save()
                 books_created += 1
                 all_books_created += 1
                 
-                image_status = "with image" if image_saved else "without image"
-                print(f"✓ Book created ({image_status}): {book_data['title'][:40]}... - {author_name}")
-                
-                if books_created >= 5:
-                    break
+                print(f"Book created: {book_data['title'][:40]}... - {author_name}")
                     
             except Exception as e:
-                print(f"✗ Error creating book {book_data['title']}: {e}")
+                print(f"Error creating book {book_data['title']}: {e}")
                 continue
     
     print(f"\nPopulation complete! {all_books_created} books created in total.")

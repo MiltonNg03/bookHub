@@ -13,8 +13,12 @@
     justify-content: space-between;
     align-items: center;
     position: fixed;
-    top: 0;width: 100%;
+    top: 0;
+    width: 100%;
     backdrop-filter: blur(5px);
+    background: rgba(255, 255, 255, 0.95);
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .title_header{
@@ -65,17 +69,42 @@ a:-webkit-any-link {
     align-items: center;
     justify-content: center;
     gap: .5rem;
-    background-image: url(../../media/book_covers/bg.jpg);
+    background-image: url(../../media/images/bg.jpg);
     background-position: center;
     background-size: cover;
     color: #fff;
+    text-align: center;
+}
+
+.section_one h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.section_one p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 .section_one a{
     background-color: cadetblue;
     color: #fff;
-    padding: .5rem 1rem;
+    padding: 1rem 2rem;
     border-radius: .5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(95, 158, 160, 0.3);
+}
+
+.section_one a:hover {
+    background-color: #4a7c7e;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(95, 158, 160, 0.4);
 }
 
 /**********************************************************/
@@ -230,11 +259,12 @@ footer{
 *************************Login*********************************/
 
 .login{
-    height: 74vh;
+    min-height: 74vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding: 2rem 0;
 }
 
 .sous_login{
@@ -262,9 +292,17 @@ footer{
 
 .btn_submit button{
     background-color: cadetblue;
+    color: white;
     border: none;
     border-radius: .4rem;
-    padding: .5rem 1.5rem;
+    padding: .8rem 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn_submit button:hover{
+    background-color: #5f9ea0;
 }
 
 textarea{
@@ -275,7 +313,42 @@ textarea{
 }
 
 input{
-    padding: .1rem .5rem;
+    padding: .5rem;
+    border: 1px solid #ddd;
+    border-radius: .3rem;
+    font-size: 1rem;
+    width: 100%;
+}
+
+input:focus{
+    outline: none;
+    border-color: cadetblue;
+    box-shadow: 0 0 5px rgba(95, 158, 160, 0.3);
+}
+
+label{
+    font-weight: 500;
+    color: #333;
+}
+
+.register h4{
+    font-size: 1.8rem;
+    color: cadetblue;
+    margin-bottom: 0;
+}
+
+.register p{
+    text-align: center;
+    margin-top: 0;
+}
+
+.register p a{
+    color: cadetblue;
+    text-decoration: none;
+}
+
+.register p a:hover{
+    text-decoration: underline;
 }
 
 /*********************************************************
@@ -283,12 +356,17 @@ input{
 .register{
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
-    height: 95%; width: 20rem;
+    justify-content: flex-start;
+    min-height: 500px;
+    width: 25rem;
+    max-width: 90vw;
     align-items: center;
-    border: solid 1px ;
+    border: solid 1px #ddd;
     border-radius: .5rem;
     box-shadow: 0px 2px 10px 2px rgba(0, 0, 0, 0.274);
+    padding: 2rem 1rem;
+    gap: 1.5rem;
+    background: white;
 }
 
 /*********************************************************

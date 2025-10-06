@@ -4,83 +4,109 @@
 
 {% block content %}
 {% csrf_token %}
-<div>
-    
-    <div class="title" style="height: 25vh;">
-        <h1>Mon Panier</h1>
-        <h5>Articles dans votre panier</h5>
-    </div>    
-    {% if cart_items %}
-    <div>
-        <div>
-            <div class="sous_section_two">
-
-                    {% for item in cart_items %}
-                    <div id="cart-item-{{ item.id }}" class="book_list">
-                            {% if item.book.cover_image %}
-                            <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}" style="height: 65%;">
-                            {% else %}
-                            <div>[Book Image]</div>
-                            {% endif %}
-                        <div style="width: 90%;">
-                            <h3>{{ item.book.title }}</h6>
-                            <p>By {{ item.book.author.name }}</p>
-
-                            <p>{{ item.book.price }} KES</p>
-
-                            <div>
-                                <button type="button" onclick="changeQuantity({{ item.id }}, -1)" 
-                                        {% if item.quantity <= 1 %}disabled{% endif %}>-</button>
-                                <input type="number" value="{{ item.quantity }}" 
-                                       min="1" max="{{ item.book.stock_quantity }}" id="quantity-{{ item.id }}"
-                                       onchange="updateQuantity({{ item.id }}, this.value)">
-                                <button type="button" onclick="changeQuantity({{ item.id }}, 1)">+</button>
-                            </div>
-
-                            <p id="item-total-{{ item.id }}">{% widthratio item.book.price 1 item.quantity %} KES</p>
-
-                            <button onclick="removeFromCart({{ item.id }})" title="Supprimer">Remove</button>
-                        </div>
-                    </div>
-                    {% endfor %}
-            </div>
+<div class="cart-page">
+    <div class="container">
+        <div class="page-header">
+            <h1>Mon Panier</h1>
+            <p>{% if cart_items %}{{ cart_items|length }} article{{ cart_items|length|pluralize }} dans votre panier{% else %}Votre panier est vide{% endif %}</p>
         </div>
-        
-        <div class="total_panier">
-            <div class="sous_total_panier">
-                <div style="display: flex;align-items: center;justify-content: center; width: 100%; background-color: darkgray;border-radius: .5rem .5rem 0 0; padding: .5rem 0;">
-                    <img src="../../../../media/book_covers/shopping-cart.svg" alt=""/>
-                    <h5>Résumé de la commande</h5>
+
+        {% if cart_items %}
+        <div class="cart-layout">
+            <div class="cart-items">
+                {% for item in cart_items %}
+                <div id="cart-item-{{ item.id }}" class="cart-item">
+                    <div class="item-image">
+                        {% if item.book.cover_image %}
+                        <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}">
+                        {% else %}
+                        <div class="no-cover">📚</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="item-details">
+                        <h3>{{ item.book.title }}</h3>
+                        <p class="author">{{ item.book.author.name }}</p>
+                        <p class="price">{{ item.book.price }} KES</p>
+                    </div>
+                    
+                    <div class="item-controls">
+                        <div class="quantity-controls">
+                            <button type="button" onclick="changeQuantity({{ item.id }}, -1)" 
+                                    {% if item.quantity <= 1 %}disabled{% endif %} class="qty-btn">−</button>
+                            <span class="qty-display">{{ item.quantity }}</span>
+                            <input type="hidden" id="quantity-{{ item.id }}" value="{{ item.quantity }}">
+                            <button type="button" onclick="changeQuantity({{ item.id }}, 1)" class="qty-btn">+</button>
+                        </div>
+                        
+                        <p class="item-total" id="item-total-{{ item.id }}">{% widthratio item.book.price 1 item.quantity %} KES</p>
+                        
+                        <button onclick="removeFromCart({{ item.id }})" class="remove-btn" title="Supprimer">🗑️</button>
+                    </div>
                 </div>
-                    <div>
-                        <span>Sous-total:</span>
+                {% endfor %}
+            </div>
+            
+            <div class="cart-summary">
+                <div class="summary-card">
+                    <h3>Résumé de la commande</h3>
+                    
+                    <div class="summary-line">
+                        <span>Sous-total</span>
                         <span id="cart-total">{{ total }} KES</span>
                     </div>
-                    <div>
-                        <span>Livraison Gratuite</span>
+                    
+                    <div class="summary-line">
+                        <span>Livraison</span>
+                        <span class="free">Gratuite</span>
                     </div>
-                    <hr style="width: 100%;">
-                    <div style="margin-top: .2rem;">
-                        <strong>Total:</strong>
+                    
+                    <hr>
+                    
+                    <div class="summary-line total">
+                        <strong>Total</strong>
                         <strong id="cart-final-total">{{ total }} KES</strong>
                     </div>
                     
-                    <div class="bouble_btn">
-                        <a href="{% url 'book_list' %}"> Add </a> 
-                        <a href="{% url 'checkout' %}">Make paiement</a>
+                    <div class="summary-actions">
+                        <a href="{% url 'book_list' %}" class="btn btn-outline">Continuer les achats</a>
+                        <a href="{% url 'checkout' %}" class="btn btn-primary">Passer commande</a>
                     </div>
+                </div>
             </div>
         </div>
+        {% else %}
+        <div class="empty-cart">
+            <div class="empty-icon">🛒</div>
+            <h3>Votre panier est vide</h3>
+            <p>Découvrez notre collection de livres et ajoutez-en à votre panier</p>
+            <a href="{% url 'book_list' %}" class="btn btn-primary">Explorer les livres</a>
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div style="height: 49vh; display: grid; place-items: center;">
-        <h3>Your cart is empty</h3>
-        <p>Discover our book collection and add some to your cart.</p>
-        <a href="{% url 'book_list' %}">Explorer les livres</a>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}
+
+<!-- Message Modal -->
+<div id="messageModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div style="background-color: white; margin: 15% auto; padding: 20px; border-radius: 8px; width: 300px; text-align: center;">
+        <h3 id="messageTitle">Message</h3>
+        <p id="messageText"></p>
+        <button onclick="closeMessageModal()" style="background-color: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">OK</button>
+    </div>
+</div>
+
+<!-- Confirm Modal -->
+<div id="confirmModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div style="background-color: white; margin: 15% auto; padding: 20px; border-radius: 8px; width: 300px; text-align: center;">
+        <h3>Confirm</h3>
+        <p id="confirmText"></p>
+        <div style="margin-top: 20px;">
+            <button id="confirmYes" style="background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 10px; cursor: pointer;">Yes</button>
+            <button onclick="closeConfirmModal()" style="background-color: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Cancel</button>
+        </div>
+    </div>
+</div>
 
 {% block extra_js %}
 <script>
@@ -118,62 +144,48 @@ function updateQuantity(itemId, newQuantity) {
         },
         body: formData
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
         if (data.success) {
             const quantityInput = document.getElementById(`quantity-${itemId}`);
+            const qtyDisplay = document.querySelector(`#cart-item-${itemId} .qty-display`);
             quantityInput.value = newQuantity;
+            qtyDisplay.textContent = newQuantity;
             
-            const minusBtn = quantityInput.parentElement.querySelector('button:first-child');
-            if (newQuantity <= 1) {
-                minusBtn.disabled = true;
-            } else {
-                minusBtn.disabled = false;
-            }
+            const minusBtn = document.querySelector(`#cart-item-${itemId} .qty-btn:first-child`);
+            minusBtn.disabled = newQuantity <= 1;
             
-            const priceElement = document.querySelector(`#cart-item-${itemId} div:nth-child(2) p:nth-child(3)`);
-            if (priceElement) {
-                const price = parseFloat(priceElement.textContent.replace(' KES', ''));
-                const itemTotalElement = document.getElementById(`item-total-${itemId}`);
-                if (itemTotalElement) {
-                    itemTotalElement.textContent = (price * newQuantity).toFixed(2) + ' KES';
-                }
-            }
+            const priceElement = document.querySelector(`#cart-item-${itemId} .price`);
+            const price = parseFloat(priceElement.textContent.replace(' KES', ''));
+            const itemTotalElement = document.getElementById(`item-total-${itemId}`);
+            itemTotalElement.textContent = (price * newQuantity).toFixed(2) + ' KES';
             
             document.getElementById('cart-total').textContent = data.total.toFixed(2) + ' KES';
             document.getElementById('cart-final-total').textContent = data.total.toFixed(2) + ' KES';
             
             updateCartCount();
         } else {
-            alert(data.message);
+            showMessage('Error', data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Erreur lors de la mise à jour de la quantité');
+        showMessage('Error', 'Erreur lors de la mise à jour');
     });
 }
 
 function removeFromCart(itemId) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet article du panier ?')) {
+    console.log('removeFromCart called with itemId:', itemId);
+    if (confirm('Supprimer cet article du panier ?')) {
         fetch(`/cart/remove/${itemId}/`, {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
+            console.log('Response data:', data);
             if (data.success) {
                 document.getElementById(`cart-item-${itemId}`).remove();
                 updateCartCount();
@@ -185,8 +197,48 @@ function removeFromCart(itemId) {
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Erreur lors de la suppression de l\'article');
         });
+    }
+}
+
+function showMessage(title, message) {
+    const messageTitle = document.getElementById('messageTitle');
+    const messageText = document.getElementById('messageText');
+    const messageModal = document.getElementById('messageModal');
+    
+    if (messageTitle && messageText && messageModal) {
+        messageTitle.textContent = title;
+        messageText.textContent = message;
+        messageModal.style.display = 'block';
+    }
+}
+
+function closeMessageModal() {
+    const messageModal = document.getElementById('messageModal');
+    if (messageModal) {
+        messageModal.style.display = 'none';
+    }
+}
+
+function showConfirm(message, callback) {
+    const confirmText = document.getElementById('confirmText');
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmYes = document.getElementById('confirmYes');
+    
+    if (confirmText && confirmModal && confirmYes) {
+        confirmText.textContent = message;
+        confirmModal.style.display = 'block';
+        confirmYes.onclick = () => {
+            closeConfirmModal();
+            callback();
+        };
+    }
+}
+
+function closeConfirmModal() {
+    const confirmModal = document.getElementById('confirmModal');
+    if (confirmModal) {
+        confirmModal.style.display = 'none';
     }
 }
 </script>

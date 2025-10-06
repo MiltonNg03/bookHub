@@ -8,7 +8,7 @@ from .models import Book, Category, Cart, CartItem, Order, OrderItem, User, Auth
 from .forms import UserRegistrationForm, UserLoginForm, BookForm, UserForm, CategoryForm, AuthorForm
 
 def home(request):
-    books = Book.objects.filter(stock_quantity__gt=0)[:8]
+    books = Book.objects.filter(stock_quantity__gt=0).order_by('?')[:8]
     categories = Category.objects.all()[:6]
     
     # Ajouter le nombre d'articles dans le panier
@@ -36,6 +36,8 @@ def book_list(request):
             Q(author__name__icontains=search_query) |
             Q(isbn__icontains=search_query)
         )
+    else:
+        books = books.order_by('?')
     
     categories = Category.objects.all()
     return render(request, 'core/book_list.html', {
@@ -51,10 +53,15 @@ def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, 'Registration successful! Welcome to BookHub.')
-            return redirect('home')
+            try:
+                user = form.save()
+                login(request, user)
+                messages.success(request, 'Registration successful! Welcome to BookHub.')
+                return redirect('home')
+            except Exception as e:
+                messages.error(request, f'Registration failed: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = UserRegistrationForm()
     return render(request, 'core/register.html', {'form': form})
@@ -333,17 +340,37 @@ def admin_add_user(request):
 @user_passes_test(is_admin)
 def admin_books(request):
     books = Book.objects.all().order_by('-created_at')
+    search_query = request.GET.get('search')
+    
+    if search_query:
+        books = books.filter(
+            Q(title__icontains=search_query) |
+            Q(author__name__icontains=search_query) |
+            Q(isbn__icontains=search_query)
+        )
+    
     return render(request, 'core/admin_books.html', {'books': books})
 
 @user_passes_test(is_admin)
 def admin_add_book(request):
     if request.method == 'POST':
+        print(f"POST data: {request.POST}")
         form = BookForm(request.POST, request.FILES)
+        print(f"Form is valid: {form.is_valid()}")
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Book added successfully!')
-            form = BookForm()
-            return render(request, 'core/admin_add_book.html', {'form': form})
+            try:
+                book = form.save()
+                print(f"Book saved: {book.id} - {book.title}")
+                messages.success(request, 'Book added successfully!')
+                return redirect('admin_add_book')
+            except Exception as e:
+                print(f"Error saving book: {e}")
+                messages.error(request, f'Error creating book: {str(e)}')
+        else:
+            print(f"Form errors: {form.errors}")
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = BookForm()
     return render(request, 'core/admin_add_book.html', {'form': form})
@@ -363,3 +390,108 @@ def admin_delete_user(request, user_id):
         user.delete()
         return JsonResponse({'success': True})
     return JsonResponse({'success': False})
+
+@user_passes_test(is_admin)
+def admin_search_books(request):
+    query = request.GET.get('q', '').strip()
+    if len(query) < 1:
+        books = Book.objects.all().order_by('-created_at')[:20]
+    else:
+        books = Book.objects.filter(
+            Q(title__icontains=query) |
+            Q(author__name__icontains=query) |
+            Q(isbn__icontains=query)
+        ).order_by('-created_at')[:20]
+    
+    books_data = []
+    for book in books:
+        books_data.append({
+            'id': book.id,
+            'title': book.title,
+            'author': book.author.name,
+            'category': book.category.name,
+            'price': float(book.price),
+            'stock_quantity': book.stock_quantity,
+            'created_at': book.created_at.strftime('%b %d, %Y')
+        })
+    
+    return JsonResponse({'books': books_data})
+
+@user_passes_test(is_admin)
+@csrf_exempt
+def admin_update_book_price(request, book_id):
+    if request.method == 'POST':
+        try:
+            import json
+            data = json.loads(request.body)
+            new_price = data.get('price')
+            
+            if new_price is None or new_price <= 0:
+                return JsonResponse({'success': False, 'message': 'Invalid price'})
+            
+            book = get_object_or_404(Book, id=book_id)
+            book.price = new_price
+            book.save()
+            
+            return JsonResponse({'success': True, 'message': 'Price updated successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+# Validation endpoints
+def validate_username(request):
+    username = request.GET.get('username', '').strip()
+    if not username:
+        return JsonResponse({'valid': True})
+    exists = User.objects.filter(username=username).exists()
+    return JsonResponse({'valid': not exists, 'message': 'Username already exists' if exists else ''})
+
+def validate_email(request):
+    import re
+    email = request.GET.get('email', '').strip()
+    if not email:
+        return JsonResponse({'valid': True})
+    
+    # Check email format
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(email_pattern, email):
+        return JsonResponse({'valid': False, 'message': 'Invalid email format'})
+    
+    # Check if email exists
+    exists = User.objects.filter(email=email).exists()
+    return JsonResponse({'valid': not exists, 'message': 'Email already exists' if exists else ''})
+
+def validate_password(request):
+    password = request.GET.get('password', '')
+    if not password:
+        return JsonResponse({'valid': True, 'strength': 0})
+    
+    strength = 0
+    messages = []
+    
+    if len(password) >= 8:
+        strength += 1
+    else:
+        messages.append('At least 8 characters')
+    
+    if any(c.isupper() for c in password):
+        strength += 1
+    else:
+        messages.append('One uppercase letter')
+    
+    if any(c.islower() for c in password):
+        strength += 1
+    else:
+        messages.append('One lowercase letter')
+    
+    if any(c.isdigit() for c in password):
+        strength += 1
+    else:
+        messages.append('One number')
+    
+    return JsonResponse({
+        'valid': strength >= 4,
+        'strength': strength,
+        'messages': messages
+    })

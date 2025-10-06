@@ -1,10 +1,10 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Mes Commandes - BookHub{% endblock %}
+{% block title %}My Orders - BookHub{% endblock %}
 
 {% block content %}
 <div class="container" style="margin-top: 10vh;">
-    <h1>Mes Commandes</h1>
+    <h1>My Orders</h1>
     
     {% if purchased_books or cart_books %}
         <div class="orders-section">
@@ -12,22 +12,22 @@
             {% if purchased_books %}
                 <div>
 
-                    <h2>Livres Achetés</h2>
+                    <h2>Purchased Books</h2>
                     <div class="sous_section_two">
                             {% for item in purchased_books %}
                                 <div class="book_list" >
                                     {% if item.book.cover_image %}
                                         <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}"style="height:65%" class="book-cover">
                                     {% else %}
-                                        <div class="no-image">Pas d'image</div>
+                                        <div class="no-image">No image</div>
                                     {% endif %}
                                     <div class="book-info">
                                         <h3>{{ item.book.title }}</h3>
-                                        <p class="author">par {{ item.book.author.name }}</p>
+                                        <p class="author">by {{ item.book.author.name }}</p>
                                         <p class="price">{{ item.price }}€</p>
-                                        <p class="quantity">Quantité: {{ item.quantity }}</p>
-                                        <p class="status purchased">✓ Acheté</p>
-                                        <p class="order-date">Commandé le {{ item.order.created_at|date:"d/m/Y" }}</p>
+                                        <p class="quantity">Quantity: {{ item.quantity }}</p>
+                                        <p class="status purchased">✓ Purchased</p>
+                                        <p class="order-date">Ordered on {{ item.order.created_at|date:"m/d/Y" }}</p>
                                     </div>
                                 </div>
                             {% endfor %}
@@ -37,7 +37,7 @@
             {% endif %}
             
             {% if cart_books %}
-                <h2>Livres dans le Panier</h2>
+                <h2>Books in Cart</h2>
 
                 <div class="sous_section_two">
                     <div class="sous_section_two">
@@ -46,15 +46,15 @@
                                 {% if item.book.cover_image %}
                                     <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}" class="book-cover">
                                 {% else %}
-                                    <div class="no-image">Pas d'image</div>
+                                    <div class="no-image">No image</div>
                                 {% endif %}
                                 <div class="book-info">
                                     <h3>{{ item.book.title }}</h3>
-                                    <p class="author">par {{ item.book.author.name }}</p>
+                                    <p class="author">by {{ item.book.author.name }}</p>
                                     <p class="price">{{ item.book.price }}€</p>
-                                    <p class="quantity">Quantité: {{ item.quantity }}</p>
-                                    <p class="status in-cart">🛒 Encore dans le panier</p>
-                                    <p class="cart-date">Ajouté le {{ item.added_at|date:"d/m/Y" }}</p>
+                                    <p class="quantity">Quantity: {{ item.quantity }}</p>
+                                    <p class="status in-cart">🛒 Still in cart</p>
+                                    <p class="cart-date">Added on {{ item.added_at|date:"m/d/Y" }}</p>
                                 </div>
                             </div>
                         {% endfor %}
@@ -65,8 +65,8 @@
         </div>
     {% else %}
         <div class="empty-orders" style="height: 49vh; display: grid; place-items: center;">
-            <p>Vous n'avez encore acheté aucun livre et votre panier est vide.</p>
-            <a href="{% url 'book_list' %}" class="btn btn-primary">Découvrir nos livres</a>
+            <p>You haven't purchased any books yet and your cart is empty.</p>
+            <a href="{% url 'book_list' %}" class="btn btn-primary">Discover our books</a>
         </div>
     {% endif %}
 </div>
